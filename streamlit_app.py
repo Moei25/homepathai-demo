@@ -1,665 +1,714 @@
 import streamlit as st
+import pandas as pd
+from math import ceil
 
-# ================== PAGE CONFIG ==================
+# ---------------------------
+# Demo Data
+# ---------------------------
 
-st.set_page_config(
-    page_title="HomePathAI – Smart Real Estate Assistant",
-    layout="wide",
-    page_icon="🏠",
-)
+SAMPLE_PROPERTIES = [
+    {
+        "city": "Detroit, MI",
+        "neighborhood": "Downtown",
+        "price": 265000,
+        "beds": 3,
+        "baths": 2,
+        "sqft": 1450,
+        "type": "Single Family",
+        "first_time_friendly": True,
+        "investor_friendly": True,
+        "section8_friendly": False,
+        "rent_estimate": 2100,
+        "arv": 310000,
+    },
+    {
+        "city": "Detroit, MI",
+        "neighborhood": "Midtown",
+        "price": 195000,
+        "beds": 2,
+        "baths": 1,
+        "sqft": 980,
+        "type": "Condo",
+        "first_time_friendly": True,
+        "investor_friendly": False,
+        "section8_friendly": True,
+        "rent_estimate": 1650,
+        "arv": 220000,
+    },
+    {
+        "city": "Detroit, MI",
+        "neighborhood": "Corktown",
+        "price": 345000,
+        "beds": 4,
+        "baths": 2,
+        "sqft": 1850,
+        "type": "Single Family",
+        "first_time_friendly": False,
+        "investor_friendly": True,
+        "section8_friendly": False,
+        "rent_estimate": 2600,
+        "arv": 390000,
+    },
+    {
+        "city": "Grand Rapids, MI",
+        "neighborhood": "Heritage Hill",
+        "price": 285000,
+        "beds": 3,
+        "baths": 2,
+        "sqft": 1600,
+        "type": "Single Family",
+        "first_time_friendly": True,
+        "investor_friendly": True,
+        "section8_friendly": True,
+        "rent_estimate": 2200,
+        "arv": 330000,
+    },
+]
 
-# ================== GLOBAL STYLES (CSS) ==================
+SAMPLE_LEADS = [
+    {
+        "owner": "Taylor Johnson",
+        "property": "1243 Elm St, Detroit, MI",
+        "motivation": 88,
+        "equity_est": 37,
+        "status": "New",
+        "source": "Pre-foreclosure",
+    },
+    {
+        "owner": "Jordan Smith",
+        "property": "89 Maple Ave, Detroit, MI",
+        "motivation": 74,
+        "equity_est": 41,
+        "status": "Follow-up",
+        "source": "Tired landlord",
+    },
+    {
+        "owner": "Chris Lee",
+        "property": "501 State St, Grand Rapids, MI",
+        "motivation": 62,
+        "equity_est": 29,
+        "status": "New",
+        "source": "Vacant",
+    },
+]
 
-APP_BG_IMAGE = "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=1600&q=80"
+SAMPLE_AGENTS = [
+    {
+        "name": "Alex Rivera",
+        "market": "Detroit",
+        "specialty": "First-time buyers",
+        "experience": "7 years",
+        "rating": 4.8,
+    },
+    {
+        "name": "Morgan Patel",
+        "market": "Grand Rapids",
+        "specialty": "Investors + multifamily",
+        "experience": "9 years",
+        "rating": 4.9,
+    },
+    {
+        "name": "Jordan Brooks",
+        "market": "Statewide",
+        "specialty": "VA & FHA buyers",
+        "experience": "5 years",
+        "rating": 4.7,
+    },
+]
 
-CUSTOM_CSS = f"""
-<style>
-.main .block-container {{
-    padding-top: 1.2rem;
-    padding-bottom: 3rem;
-}}
-
-h1, h2, h3, h4 {{
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}}
-
-body {{
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}}
-
-/* HERO */
-.hero-section {{
-    position: relative;
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 1.8rem;
-    color: #ffffff;
-    box-shadow: 0 10px 30px rgba(15,23,42,0.35);
-}}
-
-.hero-bg {{
-    position: absolute;
-    inset: 0;
-    background-image: url('{APP_BG_IMAGE}');
-    background-size: cover;
-    background-position: center;
-    filter: brightness(0.55);
-}}
-
-.hero-content {{
-    position: relative;
-    padding: 2.4rem 2.2rem 2.1rem 2.2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-    z-index: 1;
-}}
-
-.hero-title {{
-    font-size: 2.4rem;
-    font-weight: 750;
-    line-height: 1.15;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.7);
-}}
-
-.hero-subtitle {{
-    font-size: 0.98rem;
-    opacity: 0.96;
-    max-width: 640px;
-}}
-
-.hero-chip-row {{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.45rem;
-    margin-top: 0.2rem;
-}}
-
-.hero-chip {{
-    font-size: 0.78rem;
-    padding: 0.25rem 0.7rem;
-    border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.5);
-    background: rgba(15,23,42,0.55);
-    backdrop-filter: blur(4px);
-}}
-
-.hero-search-wrapper {{
-    margin-top: 0.8rem;
-    max-width: 620px;
-}}
-
-.hero-footer-row {{
-    margin-top: 0.9rem;
-    font-size: 0.8rem;
-    opacity: 0.9;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.7rem;
-}}
-
-/* PROPERTY CARDS */
-.property-card {{
-    border-radius: 14px;
-    border: 1px solid #e2e8f0;
-    background: #ffffff;
-    box-shadow: 0 10px 30px rgba(15,23,42,0.04);
-    overflow: hidden;
-    margin-bottom: 0.9rem;
-}}
-
-.property-card img {{
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-}}
-
-.property-body {{
-    padding: 0.85rem 0.95rem 0.9rem 0.95rem;
-    font-size: 0.86rem;
-}}
-
-.badge-pill {{
-    display: inline-block;
-    font-size: 0.7rem;
-    padding: 0.16rem 0.55rem;
-    border-radius: 999px;
-    background: #0f766e1a;
-    color: #0f766e;
-    margin-bottom: 0.15rem;
-}}
-
-.property-price {{
-    font-size: 1.02rem;
-    font-weight: 700;
-    margin-bottom: 0.05rem;
-}}
-
-.property-meta {{
-    color: #64748b;
-    font-size: 0.8rem;
-}}
-
-/* FOOTER */
-.hp-footer {{
-    margin-top: 2.5rem;
-    padding-top: 0.9rem;
-    border-top: 1px solid #e2e8f0;
-    font-size: 0.83rem;
-    color: #64748b;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 0.4rem;
-}}
-
-.hp-footer span.hp-tagline-1 {{
-    font-weight: 600;
-    color: #0f172a;
-}}
-
-.hp-footer span.hp-tagline-2 {{
-    font-weight: 500;
-    color: #0f766e;
-}}
-</style>
-"""
-
-st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
-
-# ================== HELPERS ==================
+SAMPLE_LENDERS = [
+    {
+        "name": "Motor City Home Lending",
+        "niche": "First-time buyers, FHA",
+        "min_credit": 580,
+        "max_ltv": 96.5,
+        "turn_time": "24–48 hours",
+    },
+    {
+        "name": "Great Lakes Investor Finance",
+        "niche": "Investors, DSCR loans",
+        "min_credit": 640,
+        "max_ltv": 80,
+        "turn_time": "2–4 days",
+    },
+    {
+        "name": "Midwest Prime Mortgage",
+        "niche": "Conventional + Jumbo",
+        "min_credit": 620,
+        "max_ltv": 95,
+        "turn_time": "48–72 hours",
+    },
+]
 
 
-def get_trending_properties(city=None):
-    props = [
-        {
-            "title": "Modern Bungalow on the East Side",
-            "city": "Detroit, MI",
-            "price": "$289,000",
-            "beds": "3",
-            "baths": "2",
-            "sqft": "1,540",
-            "badge": "Trending",
-            "image": "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=900&q=80",
-        },
-        {
-            "title": "Renovated Craftsman Near Downtown",
-            "city": "Grand Rapids, MI",
-            "price": "$344,900",
-            "beds": "4",
-            "baths": "2",
-            "sqft": "1,920",
-            "badge": "Hot this week",
-            "image": "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=900&q=80",
-        },
-        {
-            "title": "Starter Home with Big Backyard",
-            "city": "Warren, MI",
-            "price": "$215,000",
-            "beds": "2",
-            "baths": "1",
-            "sqft": "1,120",
-            "badge": "Great for first-time buyers",
-            "image": "https://images.unsplash.com/photo-1600585154340-0ef3c08c0632?auto=format&fit=crop&w=900&q=80",
-        },
-    ]
-    if not city:
-        return props
-    city_l = city.lower()
-    filtered = [p for p in props if city_l in p["city"].lower()]
-    return filtered or props
+# ---------------------------
+# Helpers
+# ---------------------------
+
+def format_currency(x: float) -> str:
+    return f"${x:,.0f}"
 
 
-def render_footer():
+def render_app_header():
     st.markdown(
         """
-        <div class="hp-footer">
-            <span class="hp-tagline-1">For you</span>
-            <span class="hp-tagline-2">Built to make your home buying simple.</span>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-# ================== PAGES ==================
-
-# ---------- HOME PAGE ----------
-
-
-def page_home():
-    # HERO
-    st.markdown(
-        """
-        <div class="hero-section">
-            <div class="hero-bg"></div>
-            <div class="hero-content">
-
-                <div class="hero-title">
-                    Smarter home search. <br/>Powered by AI.
+        <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.5rem;">
+            <div style="
+                width:34px;height:34px;border-radius:9px;
+                background:linear-gradient(135deg,#0f6fff,#22c1c3);
+                display:flex;align-items:center;justify-content:center;
+                color:white;font-weight:800;font-size:18px;">
+                H
+            </div>
+            <div>
+                <div style="font-size:22px;font-weight:800;letter-spacing:0.03em;">
+                    HomePathAI
                 </div>
-
-                <div class="hero-subtitle">
-                    HomePathAI helps you compare neighborhoods, estimate repairs,
-                    and navigate buying or renting — with tools built for first-time buyers,
-                    investors, and renters.
+                <div style="font-size:12px;color:#5c6f82;">
+                    For you • Built to make home buying simple
                 </div>
-
-                <div class="hero-chip-row">
-                    <div class="hero-chip">🏡 First-time buyer friendly</div>
-                    <div class="hero-chip">📊 Investor deal analysis</div>
-                    <div class="hero-chip">📍 Neighborhood insights</div>
-                    <div class="hero-chip">🔧 Repair estimator</div>
-                    <div class="hero-chip">🚚 Rent & moving tools</div>
-                </div>
-
             </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
-
-    # Search bar (real Streamlit input)
-    search_query = st.text_input(
-        "Search city, neighborhood, or ZIP",
-        placeholder="Try “Detroit, MI” or a ZIP code",
-    )
-    if search_query:
-        st.caption(f"Showing demo content based on: **{search_query}**")
-
-    # Trending homes
-    st.markdown("### 🔥 Trending homes near you (demo)")
-    st.caption("Most-viewed homes in your area over the last 24 hours (mock data).")
-
-    props = get_trending_properties(search_query)
-    c1, c2, c3 = st.columns(3)
-    for col, p in zip([c1, c2, c3], props):
-        with col:
-            st.markdown(
-                f"""
-                <div class="property-card">
-                    <img src="{p['image']}" alt="Home photo"/>
-                    <div class="property-body">
-                        <div class="badge-pill">{p['badge']}</div>
-                        <div class="property-price">{p['price']}</div>
-                        <div class="property-meta">{p['beds']} bd · {p['baths']} ba · {p['sqft']} sq ft</div>
-                        <div style="margin-top:0.08rem; font-weight:600;">{p['title']}</div>
-                        <div style="color:#64748b; font-size:0.8rem;">{p['city']}</div>
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-
-    # Neighborhood snapshot
-    st.markdown("### 🧭 Neighborhood snapshot (demo)")
-    nc1, nc2, nc3 = st.columns(3)
-    with nc1:
-        st.metric("Safety score (demo)", "7.8 / 10", "+0.3 vs city avg")
-    with nc2:
-        st.metric("School rating (demo)", "B+ tier", "3 nearby schools")
-    with nc3:
-        st.metric("Affordability (demo)", "Moderate", "Est. 31% income → housing")
-
-    # For you feed
-    st.markdown("### 🎯 For you today (demo feed)")
-    st.write(
-        """
-- 🧑‍💼 **First-time buyer coach** – See what lenders look at before you apply.  
-- 🛠 **Repair estimator** – Upload photos and get a ballpark rehab range (future feature).  
-- 📈 **Investor plays** – Quick filters for BRRRR, flips, and long-term rentals.  
-- 🌎 **Relocation ideas** – Compare “Detroit vs Grand Rapids for families” and more.  
-"""
-    )
-
-    render_footer()
-
-# ---------- BUYER HUB ----------
+    st.markdown("---")
 
 
-def page_buyer():
-    st.title("🏡 Buyer Hub – First-Time & Repeat Buyers")
+def smartsearch_results(query: str, persona: str):
+    if not query.strip():
+        st.info("Type something like: `3 bed in Detroit under 300k with good schools`.")
+        return
+
+    st.subheader("SmartSearch interpretation")
+    st.write(f"**You asked as a {persona.lower()}**: `{query}`")
+
+    # Very light fake "extraction"
+    query_low = query.lower()
+    budget = None
+    if "300k" in query_low or "300,000" in query_low:
+        budget = 300000
+    elif "200k" in query_low:
+        budget = 200000
+
+    st.markdown("**What HomePathAI understood:**")
+    bullets = []
+    if "detroit" in query_low:
+        bullets.append("- City focus: Detroit, MI")
+    if "grand rapids" in query_low:
+        bullets.append("- City focus: Grand Rapids, MI")
+    if "good schools" in query_low:
+        bullets.append("- Preference for stronger school ratings")
+    if "walk" in query_low or "walkable" in query_low:
+        bullets.append("- Preference for walkable neighborhoods")
+    if budget:
+        bullets.append(f"- Target budget up to about {format_currency(budget)}")
+    if "flip" in query_low or "br" in query_low or "brrrr" in query_low:
+        bullets.append("- You’re likely targeting a flip / BRRRR-style deal")
+    if not bullets:
+        bullets.append("- General home search with personalized filters")
+
+    st.markdown("\n".join(bullets))
+
+    st.markdown("### Matching sample homes")
+    df = pd.DataFrame(SAMPLE_PROPERTIES)
+    # very basic filtering
+    if "detroit" in query_low:
+        df = df[df["city"].str.contains("Detroit")]
+    if "grand rapids" in query_low:
+        df = df[df["city"].str.contains("Grand Rapids")]
+
+    if budget:
+        df = df[df["price"] <= budget]
+
+    if df.empty:
+        st.warning("No sample homes match this exact search, but this is just demo data.")
+    else:
+        for _, row in df.iterrows():
+            with st.container(border=True):
+                st.markdown(
+                    f"**{row['neighborhood']} • {row['city']}**  \n"
+                    f"{row['beds']} bed • {row['baths']} bath • {row['sqft']} sqft"
+                )
+                st.write(
+                    f"Price: {format_currency(row['price'])}  "
+                    f"• Est. rent: {format_currency(row['rent_estimate'])}"
+                )
+                tags = []
+                if row["first_time_friendly"]:
+                    tags.append("First-time buyer friendly")
+                if row["investor_friendly"]:
+                    tags.append("Investor potential")
+                if row["section8_friendly"]:
+                    tags.append("Section 8 friendly")
+                if tags:
+                    st.caption(" · ".join(tags))
+
+
+# ---------------------------
+# Hubs
+# ---------------------------
+
+def buyer_hub():
+    st.subheader("Buyer Hub – First-time buyer friendly")
 
     tabs = st.tabs(
-        [
-            "Smart Search",
-            "First-Time Buyer Coach",
-            "Repair Estimator (demo)",
-            "Neighborhood Insights (demo)",
-            "Mortgage & Affordability (demo)",
-        ]
+        ["🏡 Home search", "📊 Neighborhood insights", "🧠 AI HomeBuyer Assistant"]
     )
 
-    # TAB 1 – SMART SEARCH
+    # --- Home search tab ---
     with tabs[0]:
-        st.subheader("🔍 Smart Search (demo)")
-        city = st.text_input("City, neighborhood, or ZIP", "Detroit, MI", key="buyer_city")
-        price_range = st.selectbox(
-            "Price range (demo)",
-            ["Any", "< $200k", "$200k – $400k", "$400k – $700k", "$700k+"],
-        )
-        beds = st.selectbox("Beds (demo)", ["Any", "1+", "2+", "3+", "4+"])
-        if st.button("Search sample listings", key="buyer_search_btn"):
-            st.success(
-                f"Showing **mock** listings for **{city}** with **{price_range}**, **{beds} beds**."
+        col1, col2 = st.columns([1.5, 1])
+        with col1:
+            city = st.selectbox(
+                "Where are you looking?",
+                ["Detroit, MI", "Grand Rapids, MI", "Other (demo limited to MI)"],
             )
-            demo = get_trending_properties(city)
-            for p in demo:
-                with st.expander(f"{p['price']} · {p['title']} · {p['city']}"):
-                    st.write(f"- Beds/Baths: **{p['beds']} / {p['baths']}**")
-                    st.write(f"- Sq ft: **{p['sqft']}**")
-                    st.write("- Est. payment (demo): **$1,650 / mo**")
+            min_price, max_price = st.slider(
+                "Price range",
+                50000,
+                600000,
+                (150000, 350000),
+                step=5000,
+            )
+            beds = st.select_slider("Bedrooms (min)", options=[1, 2, 3, 4, 5], value=3)
+            first_time_only = st.checkbox("Show only first-time buyer friendly homes", True)
 
-    # TAB 2 – FIRST-TIME BUYER COACH
-    with tabs[1]:
-        st.subheader("🧭 First-Time Buyer Coach (demo)")
-        stage = st.radio(
-            "Where are you in the process?",
-            [
-                "Just starting – learning how it works",
-                "Figuring out my budget & credit",
-                "Actively looking at homes",
-                "Ready to make an offer soon",
-            ],
-        )
-        st.write("### Your coaching tips (demo)")
-        if stage.startswith("Just"):
-            st.write(
-                """
-1. Pull a **soft credit check** (no hard hit) to get your ballpark score.  
-2. List your **monthly debts** – cards, car, loans – lenders care about your DTI.  
-3. Start saving for **inspection, appraisal, and closing costs**, not just down payment.  
-"""
-            )
-        elif "budget" in stage:
-            st.write(
-                """
-- Aim for housing costs under **33%** of your gross monthly income (rule of thumb).  
-- Pay down **high-interest cards first** – often fastest way to bump your score.  
-- Avoid new loans 3–6 months before applying (car, furniture, etc.).  
-"""
-            )
-        elif "looking" in stage:
-            st.write(
-                """
-- Get a **pre-approval letter** so sellers take you seriously.  
-- Visit the neighborhood at **different times of day**.  
-- Use a repair estimate to avoid budget-killer surprises later.  
-"""
-            )
+        with col2:
+            st.write("### Filters")
+            st.checkbox("Good school ratings", True)
+            st.checkbox("Walkable area", False)
+            st.checkbox("Low property taxes", False)
+            st.checkbox("Near transit / downtown", True)
+
+        st.markdown("#### Results")
+        df = pd.DataFrame(SAMPLE_PROPERTIES)
+        if "Detroit" in city:
+            df = df[df["city"].str.contains("Detroit")]
+        elif "Grand Rapids" in city:
+            df = df[df["city"].str.contains("Grand Rapids")]
+
+        df = df[(df["price"] >= min_price) & (df["price"] <= max_price)]
+        df = df[df["beds"] >= beds]
+        if first_time_only:
+            df = df[df["first_time_friendly"]]
+
+        if df.empty:
+            st.warning("No sample matches – remember this is demo data only.")
         else:
-            st.write(
-                """
-- Don’t feel pressured to offer at the **maximum** your lender approves.  
-- Ask for a **buyer net sheet** showing estimated cash to close.  
-- Keep a small **emergency buffer** after closing.  
-"""
-            )
+            for _, row in df.iterrows():
+                with st.container(border=True):
+                    st.markdown(
+                        f"**{row['neighborhood']} • {row['city']}**  \n"
+                        f"{row['beds']} bed • {row['baths']} bath • {row['sqft']} sqft"
+                    )
+                    st.write(f"Price: {format_currency(row['price'])}")
+                    st.caption("Designed to be simple and friendly for first-time buyers.")
 
-    # TAB 3 – REPAIR ESTIMATOR
-    with tabs[2]:
-        st.subheader("🛠 Repair Estimator (demo)")
-        img = st.file_uploader("Upload a property photo (front, kitchen, or bath)", type=["png", "jpg", "jpeg"])
-        condition = st.selectbox(
-            "Condition (your best guess, demo)",
-            ["Light cosmetic", "Average", "Heavy rehab", "Full gut / major"],
+    # --- Neighborhood insights tab ---
+    with tabs[1]:
+        st.markdown("#### Compare neighborhoods")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            city_a = st.selectbox("City A", ["Detroit, MI", "Grand Rapids, MI"], key="city_a")
+        with col2:
+            city_b = st.selectbox("City B", ["Grand Rapids, MI", "Detroit, MI"], key="city_b")
+
+        st.write("This demo uses fake example scores just to show the UX.")
+
+        metrics = ["Affordability", "Schools", "Safety", "Walkability", "Job growth"]
+        scores_a = [7.5, 6.8, 5.9, 7.2, 7.0] if "Detroit" in city_a else [6.9, 7.4, 7.1, 6.8, 7.3]
+        scores_b = [7.5, 6.8, 5.9, 7.2, 7.0] if "Detroit" in city_b else [6.9, 7.4, 7.1, 6.8, 7.3]
+
+        table_data = []
+        for m, a, b in zip(metrics, scores_a, scores_b):
+            table_data.append(
+                {
+                    "Metric": m,
+                    f"{city_a}": f"{a}/10",
+                    f"{city_b}": f"{b}/10",
+                }
+            )
+        st.table(pd.DataFrame(table_data))
+
+        st.caption(
+            "In production, these scores would be powered by real data: crime, schools, price trends, "
+            "internet speeds, amenities, etc."
         )
-        if img:
-            st.image(img, use_column_width=True, caption="Uploaded image (demo only)")
-        if st.button("Run mock repair estimate", key="repair_btn"):
-            if condition == "Light cosmetic":
-                est = "$8,000 – $18,000"
-            elif condition == "Average":
-                est = "$18,000 – $35,000"
-            elif condition == "Heavy rehab":
-                est = "$35,000 – $70,000"
-            else:
-                est = "$70,000+"
-            st.success(f"Estimated repairs (demo): **{est}**")
-            st.caption("Real version will use computer vision + regional cost data.")
 
-    # TAB 4 – NEIGHBORHOOD INSIGHTS
-    with tabs[3]:
-        st.subheader("📍 Neighborhood Insights (demo)")
-        city = st.text_input("City or neighborhood", "Detroit, MI", key="nb_city")
-        if st.button("Generate mock snapshot", key="nb_btn"):
-            st.write(f"### Snapshot for **{city}** (demo only)")
-            c1, c2, c3 = st.columns(3)
-            with c1:
-                st.metric("Safety trend", "Improving", "+4% vs last year (demo)")
-            with c2:
-                st.metric("Family-friendliness", "High", "Parks & schools nearby")
-            with c3:
-                st.metric("Walkability", "Car dependent", "Some errands require a car")
-            st.write(
-                """
-Real product will include:  
-- Crime heatmaps and trend lines  
-- School ratings and enrollment data  
-- Commute times to work or key places  
-- Internet speeds & local amenities  
-"""
+    # --- AI assistant tab ---
+    with tabs[2]:
+        st.write("Describe your situation and let HomePathAI simplify it for you.")
+        income = st.number_input("Household income (yearly, before tax)", 20000, 500000, 80000, step=5000)
+        debts = st.number_input("Total monthly debts (loans, cards, etc.)", 0, 20000, 800, step=50)
+        st.caption("We’ll use a simple estimate – not real underwriting.")
+
+        if st.button("Estimate comfortable home budget"):
+            dti = debts * 12 / income if income > 0 else 0
+            # very rough demo calc
+            safe_multiplier = 3.5
+            budget = income * safe_multiplier
+            if dti > 0.4:
+                budget *= 0.8
+            st.success(f"Demo estimate: You might comfortably shop around **{format_currency(budget)}**.")
+            st.caption(
+                "In the real app, this would use lender-grade calculators and live rate data."
             )
 
-    # TAB 5 – MORTGAGE & AFFORDABILITY
-    with tabs[4]:
-        st.subheader("💰 Mortgage & Affordability (demo)")
-        c1, c2, c3 = st.columns(3)
-        with c1:
-            price = st.number_input("Home price ($)", 50000, 2000000, 300000, step=5000)
-        with c2:
-            down_pct = st.number_input("Down payment (%)", 0, 100, 5)
-        with c3:
-            rate = st.number_input("Interest rate (%)", 1.0, 15.0, 6.5)
-        years = st.selectbox("Loan term (years)", [15, 20, 30], index=2)
 
-        if st.button("Estimate monthly payment (demo)", key="mtg_btn"):
-            loan = price * (1 - down_pct / 100)
-            m_rate = rate / 100 / 12
-            n = years * 12
-            if m_rate > 0:
-                payment = loan * (m_rate * (1 + m_rate) ** n) / ((1 + m_rate) ** n - 1)
-            else:
-                payment = loan / n
-            st.success(f"Estimated principal & interest (demo): **${payment:,.0f} / mo**")
-            st.caption("Real app will also estimate taxes, insurance, and HOA.")
-
-    render_footer()
-
-# ---------- RENTER HUB ----------
-
-
-def page_renter():
-    st.title("🏘 Renter Hub – Smarter Renting & Moving")
+def investor_hub():
+    st.subheader("Investor Hub – Deals, repair, skip tracing")
 
     tabs = st.tabs(
-        [
-            "Rental Finder (demo)",
-            "Section 8 & Assistance (info demo)",
-            "Moving & Setup (demo)",
-            "Rent Budget Helper (demo)",
-        ]
+        ["📈 Deal analyzer", "🛠 Repair estimator", "📇 Lead scoring & skip trace"]
     )
 
-    # TAB 1 – RENTAL FINDER
+    # --- Deal analyzer ---
     with tabs[0]:
-        st.subheader("🔎 Rental Finder (demo)")
-        city = st.text_input("City or ZIP", "Detroit, MI", key="rent_city")
-        max_rent = st.number_input("Max monthly rent ($)", 300, 6000, 1800, step=50)
-        beds = st.selectbox("Beds", ["Any", "Studio", "1+", "2+", "3+"])
-        if st.button("Show sample rentals", key="rent_btn"):
-            st.success(f"Showing mock rentals under **${max_rent}** in **{city}** with **{beds} beds**.")
-            st.write(
-                """
-- 2 bd • Midtown loft – **$1,550/mo** – walkable to groceries & transit  
-- 3 bd • East side bungalow – **$1,350/mo** – fenced yard, pets allowed  
-- 1 bd • Downtown high-rise – **$1,750/mo** – parking + gym  
-"""
-            )
+        st.markdown("##### Quick BRRRR / flip-style deal analyzer")
 
-    # TAB 2 – SECTION 8 & ASSISTANCE
-    with tabs[1]:
-        st.subheader("🏛 Section 8 & Rental Assistance (demo)")
-        st.write(
-            """
-HomePathAI does **not** approve or deny assistance.  
-But it can coach renters on:
+        col1, col2 = st.columns(2)
+        with col1:
+            purchase_price = st.number_input("Purchase price", 20000, 2000000, 180000, step=5000)
+            rehab_budget = st.number_input("Rehab budget", 0, 1000000, 45000, step=5000)
+            arv = st.number_input("After-repair value (ARV)", 50000, 3000000, 310000, step=5000)
+        with col2:
+            holding_costs = st.number_input("Holding + closing costs", 0, 500000, 15000, step=2500)
+            desired_roi = st.slider("Target ROI on cash invested", 5, 40, 18, step=1)
 
-- Where to find local **Housing Choice Voucher (Section 8)** offices  
-- What documents landlords usually ask for  
-- How inspections, vouchers, and move-in timing work  
-- How to spot **scams** and protect your info  
+        total_costs = purchase_price + rehab_budget + holding_costs
+        gross_profit = arv - total_costs
+        roi_pct = (gross_profit / total_costs * 100) if total_costs else 0
+        score = min(max(ceil(roi_pct / 4), 1), 10)
 
-Real version will show local housing authorities, links, and checklists.
-"""
+        st.markdown("#### Deal summary (demo)")
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Total in", format_currency(total_costs))
+        col2.metric("Gross profit", format_currency(gross_profit))
+        col3.metric("ROI (demo)", f"{roi_pct:.1f}%")
+
+        st.write(f"**HomePathAI score (demo)**: {score}/10")
+        if roi_pct >= desired_roi:
+            st.success("This looks like it **meets or beats** your target ROI in this demo.")
+        else:
+            st.warning("This demo deal is **below** your target ROI – you may want to renegotiate or pass.")
+
+        st.caption(
+            "In production, this analyzer would pull real comps, taxes, insurance, rent, and exit strategies."
         )
 
-    # TAB 3 – MOVING & SETUP
-    with tabs[2]:
-        st.subheader("🚚 Moving & Setup (demo)")
-        city = st.text_input("Where are you moving to?", "Detroit, MI", key="move_city")
-        if st.button("Show mock helpers", key="move_btn"):
-            st.write(
-                f"""
-### Moving helpers for **{city}** (demo)
-
-- Shortlist of movers with sample price ranges  
-- Utility checklist – power, gas, water, internet providers  
-- Suggested move-in timeline (60 / 30 / 7 days)  
-"""
+    # --- Repair estimator ---
+    with tabs[1]:
+        st.markdown("##### AI-style repair estimator (demo numbers only)")
+        col1, col2 = st.columns(2)
+        with col1:
+            beds = st.select_slider("Bedrooms", [1, 2, 3, 4, 5], value=3)
+            baths = st.select_slider("Bathrooms", [1, 2, 3], value=2)
+            sqft = st.number_input("Square footage", 600, 6000, 1500, step=50)
+        with col2:
+            condition = st.select_slider(
+                "Current condition",
+                ["Heavy distress", "Needs work", "Light cosmetic", "Rent-ready"],
+                value="Needs work",
+            )
+            region_cost = st.selectbox(
+                "Cost profile (demo only)", ["Lower cost", "Average", "Higher cost"],
+                index=1,
             )
 
-    # TAB 4 – RENT BUDGET HELPER
-    with tabs[3]:
-        st.subheader("💸 Rent Budget Helper (demo)")
-        income = st.number_input("Monthly take-home income ($)", 500, 20000, 4000, step=100)
-        pct = st.slider("Max % of income toward rent", 20, 45, 30)
-        if st.button("Calculate target rent", key="rent_budget_btn"):
-            target = income * pct / 100
-            st.success(f"Suggested max rent (demo): **${target:,.0f} / mo**")
-            st.caption("Real app could sync with bank/credit data via partners (Plaid, etc.).")
+        base_per_sqft = 18
+        if condition == "Heavy distress":
+            base_per_sqft = 40
+        elif condition == "Needs work":
+            base_per_sqft = 28
+        elif condition == "Light cosmetic":
+            base_per_sqft = 15
+        elif condition == "Rent-ready":
+            base_per_sqft = 8
 
-    render_footer()
+        multiplier = 1.0
+        if region_cost == "Lower cost":
+            multiplier = 0.85
+        elif region_cost == "Higher cost":
+            multiplier = 1.25
 
-# ---------- INVESTOR HUB ----------
+        est_repair = sqft * base_per_sqft * multiplier
+
+        st.markdown("#### Demo repair breakdown")
+        st.write(f"Estimated total repairs (demo): **{format_currency(est_repair)}**")
+
+        line_items = pd.DataFrame(
+            [
+                {"Category": "Interior / finishes", "Estimate": est_repair * 0.32},
+                {"Category": "Kitchens / baths", "Estimate": est_repair * 0.24},
+                {"Category": "Systems (HVAC, electrical, plumbing)", "Estimate": est_repair * 0.22},
+                {"Category": "Exterior / roof", "Estimate": est_repair * 0.14},
+                {"Category": "Contingency", "Estimate": est_repair * 0.08},
+            ]
+        )
+        line_items["Estimate"] = line_items["Estimate"].apply(format_currency)
+        st.table(line_items)
+
+        st.caption(
+            "In the real app, this would use computer vision on photos + local contractor cost data."
+        )
+
+    # --- Lead scoring & skip trace ---
+    with tabs[2]:
+        st.markdown("##### Lead scoring & skip-trace style view (demo)")
+        df = pd.DataFrame(SAMPLE_LEADS)
+        df_display = df.copy()
+        df_display["Motivation score"] = df_display["motivation"].astype(str) + "/100"
+        df_display["Equity (est)"] = df_display["equity_est"].astype(str) + "%"
+
+        df_display = df_display[
+            ["owner", "property", "source", "Motivation score", "Equity (est)", "status"]
+        ].rename(
+            columns={
+                "owner": "Owner",
+                "property": "Property",
+                "source": "Source",
+                "status": "Status",
+            }
+        )
+        st.table(df_display)
+
+        st.info(
+            "In production, this screen would plug into real skip-trace + list providers "
+            "and let you launch calls, SMS, and mailers directly."
+        )
 
 
-def page_investor():
-    st.title("📈 Investor Hub – Flips, BRRRR, Rentals")
+def rent_and_moving_hub():
+    st.subheader("Rent & Moving Hub")
 
-    tabs = st.tabs(
-        [
-            "Quick Deal Analyzer (demo)",
-            "ARV & Rehab (demo)",
-            "Lead Scoring & Skip (demo)",
-            "Portfolio Snapshot (demo)",
-        ]
+    tabs = st.tabs(["🏠 Rentals", "📦 Moving & utilities", "📑 Section 8 info (demo)"])
+
+    with tabs[0]:
+        city = st.selectbox(
+            "Where do you want to rent?",
+            ["Detroit, MI", "Grand Rapids, MI"],
+        )
+        section8 = st.checkbox("Show Section 8-friendly examples", True)
+
+        df = pd.DataFrame(SAMPLE_PROPERTIES)
+        df = df[(df["rent_estimate"] > 0)]
+        if "Detroit" in city:
+            df = df[df["city"].str.contains("Detroit")]
+        else:
+            df = df[df["city"].str.contains("Grand Rapids")]
+
+        if section8:
+            df = df[df["section8_friendly"]]
+
+        if df.empty:
+            st.warning("No sample rentals match these filters – demo data only.")
+        else:
+            for _, row in df.iterrows():
+                with st.container(border=True):
+                    st.markdown(
+                        f"**{row['neighborhood']} • {row['city']}**  \n"
+                        f"{row['beds']} bed • {row['baths']} bath • {row['sqft']} sqft"
+                    )
+                    st.write(f"Est. rent: {format_currency(row['rent_estimate'])}")
+                    st.caption("Demo rental. Real app would show live listings & application links.")
+
+    with tabs[1]:
+        st.markdown("##### Moving checklist (demo)")
+        st.write(
+            "- Research movers and get 2–3 quotes  \n"
+            "- Change your address (USPS, banks, ID)  \n"
+            "- Schedule utilities (electric, gas, internet)  \n"
+            "- Pack non-essentials early  \n"
+            "- Take photos of old place for records"
+        )
+        st.caption("In the real app, this would connect to actual movers & utility providers.")
+
+    with tabs[2]:
+        st.markdown("##### Section 8 (demo educational content)")
+        st.write(
+            "HomePathAI could help renters understand Section 8 basics: waiting lists, inspections, "
+            "rent limits, landlord requirements, and connect them with Section 8-friendly listings."
+        )
+
+
+def agents_and_lenders_hub():
+    st.subheader("Agents & Lenders Hub")
+
+    tabs = st.tabs(["👥 Agent hub", "🏦 Get pre-approved"])
+
+    # --- Agent hub ---
+    with tabs[0]:
+        market = st.selectbox(
+            "Filter by market",
+            ["All", "Detroit", "Grand Rapids", "Statewide"],
+        )
+        specialty = st.selectbox(
+            "Filter by specialty",
+            ["All", "First-time buyers", "Investors + multifamily", "VA & FHA buyers"],
+        )
+
+        agents = SAMPLE_AGENTS
+        filtered = []
+        for a in agents:
+            if market != "All" and market not in a["market"]:
+                continue
+            if specialty != "All" and specialty not in a["specialty"]:
+                continue
+            filtered.append(a)
+
+        if not filtered:
+            st.warning("No sample agents match those filters in this demo.")
+        else:
+            for a in filtered:
+                with st.container(border=True):
+                    st.markdown(f"**{a['name']}**  \n{a['market']} • {a['specialty']}")
+                    st.caption(
+                        f"{a['experience']} experience • Rating: {a['rating']}/5.0 (demo data)"
+                    )
+                    st.button(f"Request intro to {a['name']} (demo)", key=f"agent_{a['name']}")
+
+        st.caption("In the real platform, agent routing would respect MLS / brokerage rules.")
+
+    # --- Lender / pre-approval flow ---
+    with tabs[1]:
+        st.markdown("##### 3-step demo pre-approval flow")
+
+        step = st.radio(
+            "Step",
+            [1, 2, 3],
+            format_func=lambda x: f"Step {x}",
+            horizontal=True,
+        )
+
+        if step == 1:
+            st.write("**Step 1 – Basics**")
+            loan_type = st.selectbox(
+                "Loan type (demo)",
+                ["FHA (low down payment)", "Conventional", "Investor (DSCR)", "VA"],
+            )
+            price_target = st.number_input(
+                "Target purchase price",
+                50000,
+                2500000,
+                300000,
+                step=10000,
+            )
+            down_payment = st.slider("Down payment % (demo)", 3, 30, 5, step=1)
+            st.info(
+                "In production, this step would feed into a lender's actual underwriting engine."
+            )
+
+        elif step == 2:
+            st.write("**Step 2 – Snapshot (demo)**")
+            income = st.number_input("Household income (yearly)", 20000, 500000, 90000, step=5000)
+            credit = st.slider("Credit score (demo)", 520, 850, 700, step=10)
+            debts = st.number_input("Total monthly debts", 0, 20000, 900, step=50)
+            st.caption("Not live underwriting – just demo logic.")
+
+        else:
+            st.write("**Step 3 – Matching demo lenders**")
+            credit = st.session_state.get("demo_credit_for_match", 700)
+            # We'll just show all sample lenders for demo
+            for lender in SAMPLE_LENDERS:
+                with st.container(border=True):
+                    st.markdown(f"**{lender['name']}**")
+                    st.write(lender["niche"])
+                    st.write(
+                        f"Min credit (demo): {lender['min_credit']} • Max LTV: {lender['max_ltv']}%"
+                    )
+                    st.caption(f"Typical response: {lender['turn_time']} (demo only)")
+                    st.button(f"Start with {lender['name']} (demo)", key=f"lend_{lender['name']}")
+
+
+def help_and_about():
+    st.subheader("Help & About HomePathAI (Demo)")
+
+    with st.expander("What is HomePathAI?"):
+        st.write(
+            "HomePathAI is an AI-first real estate platform demo that combines:\n"
+            "- First-time home buyer tools\n"
+            "- Investor deal analysis & repair estimates\n"
+            "- Agent & lender matching\n"
+            "- Rent + moving tools\n"
+            "This demo runs on fake data, but the flows are designed for a real startup product."
+        )
+
+    with st.expander("Is this using real MLS or lender data?"):
+        st.write(
+            "No. This is a **demo only**. Real integrations would require licensed MLS feeds, "
+            "lender partners, and compliance work."
+        )
+
+    with st.expander("What happens next for the real build?"):
+        st.write(
+            "- Connect this front-end to a production backend (AWS / similar)\n"
+            "- Integrate real data providers (MLS, property, maps, lenders)\n"
+            "- Add auth, security, and real user accounts\n"
+            "- Deploy to web + mobile\n"
+            "- Scale with monitoring and analytics\n"
+        )
+
+    st.info(
+        "This demo is meant to show **product vision and UX** for investors, partners, and developers."
     )
 
-    # TAB 1 – QUICK DEAL ANALYZER
-    with tabs[0]:
-        st.subheader("🧮 Quick Deal Analyzer (demo)")
-        c1, c2, c3 = st.columns(3)
-        with c1:
-            arv = st.number_input("ARV (After-repair value)", 50000, 2000000, 260000, step=5000)
-        with c2:
-            purchase = st.number_input("Purchase price", 30000, 2000000, 140000, step=5000)
-        with c3:
-            rehab = st.number_input("Estimated rehab cost", 0, 1000000, 45000, step=5000)
-        hold_months = st.slider("Holding period (months)", 1, 24, 6)
-        if st.button("Analyze deal (demo)", key="deal_btn"):
-            holding_costs = hold_months * 1200  # toy model
-            total = purchase + rehab + holding_costs
-            profit = arv - total
-            margin = (profit / arv * 100) if arv > 0 else 0
-            st.metric("Projected profit (demo)", f"${profit:,.0f}")
-            st.metric("Margin on ARV (demo)", f"{margin:,.1f}%")
-            st.caption("Real version will include closing costs, fees, and financing structure.")
 
-    # TAB 2 – ARV & REHAB
-    with tabs[1]:
-        st.subheader("📐 ARV & Rehab Estimator (demo)")
-        c1, c2 = st.columns(2)
-        with c1:
-            subj_sqft = st.number_input("Subject property sq ft", 400, 10000, 1600, step=100)
-            comp_price = st.number_input("Average comp sale price", 50000, 2000000, 240000, step=5000)
-        with c2:
-            comp_sqft = st.number_input("Average comp sq ft", 400, 10000, 1700, step=100)
-            rehab_level = st.selectbox("Rehab level (demo)", ["Light", "Medium", "Heavy"])
-        if st.button("Estimate ARV & rehab (demo)", key="arv_btn"):
-            arv_est = comp_price * (subj_sqft / comp_sqft)
-            if rehab_level == "Light":
-                rehab_est = 15000
-            elif rehab_level == "Medium":
-                rehab_est = 40000
-            else:
-                rehab_est = 75000
-            st.success(
-                f"Estimated ARV (demo): **${arv_est:,.0f}** · "
-                f"Estimated rehab (demo): **${rehab_est:,.0f}**"
-            )
-            st.caption("Real engine would use MLS comps, CV, and contractor pricing.")
-
-    # TAB 3 – LEAD SCORING & SKIP (MOCK)
-    with tabs[2]:
-        st.subheader("📊 Lead Scoring & Skip Tracing (demo)")
-        leads_text = st.text_area(
-            "Sample lead list (one per line, demo)",
-            "123 Main St, Detroit, MI 48202\n"
-            "456 Oak Ave, Warren, MI 48088\n"
-            "789 Maple Dr, Grand Rapids, MI 49503",
-            height=120,
-        )
-        if st.button("Score leads (demo)", key="score_leads_btn"):
-            lines = [l.strip() for l in leads_text.splitlines() if l.strip()]
-            st.info("Demo scoring – real version will pull ownership, equity, distress flags, etc.")
-            for i, line in enumerate(lines, start=1):
-                if i == 1:
-                    label = "🔥 High – vacancy + equity signals (demo)"
-                elif i == 2:
-                    label = "🟡 Medium – some motivation (demo)"
-                else:
-                    label = "🔵 Low – nurture lead (demo)"
-                st.write(f"- **{line}** → {label}")
-            st.caption("Skip tracing APIs would plug in here in the production build.")
-
-    # TAB 4 – PORTFOLIO SNAPSHOT
-    with tabs[3]:
-        st.subheader("📚 Portfolio Snapshot (demo)")
-        st.write(
-            """
-Mock view of your rental / BRRRR portfolio:
-
-- Doors: **7**  
-- Est. portfolio value: **$1.9M**  
-- Avg. cash-on-cash return: **11.3%**  
-- Vacancies: **1** (demo)  
-"""
-        )
-        st.metric("Doors (demo)", "7", "+2 this year")
-        st.metric("Portfolio value (demo)", "$1.9M", "+$160k vs last year")
-        st.metric("Avg cash-on-cash (demo)", "11.3%", "+1.2 pts YoY")
-
-    render_footer()
-
-# ================== MAIN NAVIGATION ==================
-
+# ---------------------------
+# Main app
+# ---------------------------
 
 def main():
-    st.sidebar.title("HomePathAI")
-    nav = st.sidebar.radio(
-        "Navigate",
-        ["Home", "Buyer Hub", "Renter Hub", "Investor Hub"],
-        index=0,
+    st.set_page_config(
+        page_title="HomePathAI Demo",
+        page_icon="🏠",
+        layout="wide",
     )
 
-    if nav == "Home":
-        page_home()
-    elif nav == "Buyer Hub":
-        page_buyer()
-    elif nav == "Renter Hub":
-        page_renter()
-    elif nav == "Investor Hub":
-        page_investor()
+    render_app_header()
+
+    st.sidebar.title("HomePathAI Demo")
+    section = st.sidebar.radio(
+        "Navigate",
+        [
+            "🏠 Home / SmartSearch",
+            "🟢 Buyer Hub",
+            "🟠 Investor Hub",
+            "🔵 Rent & Moving",
+            "🟣 Agents & Lenders",
+            "❓ Help & About",
+        ],
+    )
+
+    if section == "🏠 Home / SmartSearch":
+        st.subheader("SmartSearch – conversational search (demo)")
+        persona = st.radio("I’m searching as a…", ["Buyer", "Investor", "Renter"], horizontal=True)
+        query = st.text_input(
+            "Describe what you're looking for",
+            placeholder="Example: 3 bed in Detroit under 300k, good schools, walkable",
+        )
+        if st.button("Run SmartSearch (demo)"):
+            smartsearch_results(query, persona)
+        st.caption(
+            "In the real app, this would use an AI model fine-tuned on real estate to route you to "
+            "the right homes, neighborhoods, and tools."
+        )
+
+    elif section == "🟢 Buyer Hub":
+        buyer_hub()
+
+    elif section == "🟠 Investor Hub":
+        investor_hub()
+
+    elif section == "🔵 Rent & Moving":
+        rent_and_moving_hub()
+
+    elif section == "🟣 Agents & Lenders":
+        agents_and_lenders_hub()
+
+    else:
+        help_and_about()
 
 
 if __name__ == "__main__":

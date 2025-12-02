@@ -1,838 +1,1067 @@
 import streamlit as st
-import pandas as pd
-import pydeck as pdk
+import streamlit.components.v1 as components
 
-# --------------- CONFIG --------------- #
 st.set_page_config(
     page_title="HomePathAI Demo",
     page_icon="🏠",
     layout="wide",
 )
 
-# --------------- MOCK DATA --------------- #
+# Hide Streamlit chrome and tighten padding
+st.markdown(
+    """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    .block-container {
+        padding-top: 0rem;
+        padding-bottom: 0rem;
+        padding-left: 0rem;
+        padding-right: 0rem;
+    }
+    body {
+        background: #e9f1f4;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
-PROPERTY_DATA = [
-    {
-        "id": 1,
-        "city": "Detroit, MI",
-        "neighborhood": "Downtown",
-        "price": 285000,
-        "beds": 3,
-        "baths": 2,
-        "sqft": 1650,
-        "type": "Buyer",
-        "score": 87,
-        "cashflow": None,
-        "lat": 42.3314,
-        "lon": -83.0458,
-        "tag": "First-time buyer friendly",
-    },
-    {
-        "id": 2,
-        "city": "Detroit, MI",
-        "neighborhood": "Midtown",
-        "price": 420000,
-        "beds": 4,
-        "baths": 3,
-        "sqft": 2200,
-        "type": "Investor",
-        "score": 92,
-        "cashflow": 750,
-        "lat": 42.3487,
-        "lon": -83.058,
-        "tag": "Value-add duplex",
-    },
-    {
-        "id": 3,
-        "city": "Miami, FL",
-        "neighborhood": "Little Havana",
-        "price": 365000,
-        "beds": 3,
-        "baths": 2,
-        "sqft": 1400,
-        "type": "Investor",
-        "score": 89,
-        "cashflow": 640,
-        "lat": 25.765,
-        "lon": -80.219,
-        "tag": "Rental hot zone",
-    },
-    {
-        "id": 4,
-        "city": "Grand Rapids, MI",
-        "neighborhood": "Eastown",
-        "price": 245000,
-        "beds": 2,
-        "baths": 1,
-        "sqft": 1200,
-        "type": "Buyer",
-        "score": 84,
-        "cashflow": None,
-        "lat": 42.9634,
-        "lon": -85.6681,
-        "tag": "Walkable & family friendly",
-    },
-    {
-        "id": 5,
-        "city": "Chicago, IL",
-        "neighborhood": "Logan Square",
-        "price": 525000,
-        "beds": 3,
-        "baths": 2,
-        "sqft": 1900,
-        "type": "Investor",
-        "score": 91,
-        "cashflow": 820,
-        "lat": 41.923,
-        "lon": -87.712,
-        "tag": "High appreciation corridor",
-    },
-]
+html = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HomePathAI Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 
-RENTAL_DATA = [
-    {
-        "id": 101,
-        "city": "Detroit, MI",
-        "neighborhood": "Downtown",
-        "rent": 1850,
-        "beds": 2,
-        "baths": 1,
-        "sqft": 900,
-        "type": "Apartment",
-        "section8_friendly": True,
-    },
-    {
-        "id": 102,
-        "city": "Detroit, MI",
-        "neighborhood": "Midtown",
-        "rent": 1450,
-        "beds": 1,
-        "baths": 1,
-        "sqft": 650,
-        "type": "Studio",
-        "section8_friendly": False,
-    },
-    {
-        "id": 103,
-        "city": "Grand Rapids, MI",
-        "neighborhood": "Eastown",
-        "rent": 1650,
-        "beds": 2,
-        "baths": 1,
-        "sqft": 800,
-        "type": "Duplex upper",
-        "section8_friendly": True,
-    },
-]
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      sans-serif;
+    background: #e9f1f4;
+    color: #123047;
+  }
 
-LENDERS = [
-    {
-        "name": "Great Lakes Home Finance",
-        "type": "First-time buyer focused",
-        "min_credit": 620,
-        "max_ltv": "97%",
-        "states": "MI, OH, IN",
-    },
-    {
-        "name": "Metro Investor Lending",
-        "type": "DSCR & fix-and-flip",
-        "min_credit": 660,
-        "max_ltv": "80% (investment)",
-        "states": "Nationwide",
-    },
-    {
-        "name": "Sunrise Mortgage Co.",
-        "type": "Conventional & FHA",
-        "min_credit": 600,
-        "max_ltv": "96.5%",
-        "states": "FL, GA, TX",
-    },
-]
+  .hp-page {
+    min-height: 100vh;
+    padding: 24px 16px 40px;
+  }
 
-AGENTS = [
-    {
-        "name": "Jordan Lee",
-        "market": "Detroit Metro",
-        "focus": "First-time buyers & house hackers",
-        "avg_response": "5 min",
-        "deals_year": 42,
-    },
-    {
-        "name": "Alicia Rivera",
-        "market": "Miami–Dade",
-        "focus": "Out-of-state investors",
-        "avg_response": "9 min",
-        "deals_year": 58,
-    },
-    {
-        "name": "Marcus Green",
-        "market": "Grand Rapids",
-        "focus": "Families & move-up buyers",
-        "avg_response": "7 min",
-        "deals_year": 31,
-    },
-]
+  .hp-header {
+    margin-bottom: 16px;
+  }
 
-MOVERS = [
-    {
-        "name": "SmoothMove Detroit",
-        "areas": "SE Michigan",
-        "specialty": "Local + small long-distance moves",
-        "estimate": "$$$",
-    },
-    {
-        "name": "Interstate Relocation Group",
-        "areas": "Nationwide",
-        "specialty": "State-to-state relocation",
-        "estimate": "$$$$",
-    },
-    {
-        "name": "Neighborhood Haulers",
-        "areas": "Regional",
-        "specialty": "Budget-friendly moves",
-        "estimate": "$$",
-    },
-]
+  .hp-header-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 16px 20px 20px;
+    box-shadow: 0 8px 20px rgba(15, 35, 52, 0.08);
+  }
 
+  .hp-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
 
-# --------------- STYLES --------------- #
+  .hp-logo-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #0b7899;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 16px;
+  }
 
-def inject_css():
-    st.markdown(
-        """
-        <style>
-        .main {
-            background: #050816;
-        }
-        .home-hero {
-            background: linear-gradient(135deg, #020617, #0f172a);
-            border-radius: 18px;
-            padding: 26px 26px 18px 26px;
-            border: 1px solid rgba(148,163,184,0.4);
-            box-shadow: 0 22px 50px rgba(15,23,42,0.7);
-        }
-        .hp-title {
-            font-size: 32px;
-            font-weight: 700;
-            color: #e5f4ff;
-            letter-spacing: 0.03em;
-        }
-        .hp-sub {
-            font-size: 15px;
-            color: #cbd5f5;
-            margin-top: 4px;
-        }
-        .hp-pill-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 14px;
-        }
-        .hp-pill {
-            font-size: 13px;
-            padding: 6px 13px;
-            border-radius: 999px;
-            border: 1px solid rgba(148,163,184,0.6);
-            color: #e5f4ff;
-            background: radial-gradient(circle at top left, #1d4ed8 0, #020617 55%);
-        }
-        .hp-section-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #e5f4ff;
-            margin-bottom: 4px;
-        }
-        .hp-section-sub {
-            font-size: 13px;
-            color: #9ca3af;
-        }
-        .hp-card {
-            background: radial-gradient(circle at top left, #0f172a 0, #020617 55%);
-            border-radius: 16px;
-            padding: 14px 16px;
-            border: 1px solid rgba(148,163,184,0.4);
-            box-shadow: 0 16px 30px rgba(15,23,42,0.9);
-            height: 100%;
-        }
-        .hp-badge {
-            display: inline-block;
-            padding: 3px 9px;
-            border-radius: 999px;
-            font-size: 11px;
-            font-weight: 500;
-            background: rgba(45,212,191,0.1);
-            color: #5eead4;
-            border: 1px solid rgba(45,212,191,0.6);
-        }
-        .hp-tag {
-            display: inline-block;
-            padding: 3px 9px;
-            border-radius: 999px;
-            font-size: 11px;
-            background: rgba(59,130,246,0.14);
-            color: #bfdbfe;
-        }
-        .hp-price {
-            font-size: 18px;
-            font-weight: 600;
-            color: #e5f4ff;
-            margin-top: 6px;
-        }
-        .hp-metrics {
-            font-size: 12px;
-            color: #9ca3af;
-            margin-top: 4px;
-        }
-        .hp-footer {
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: 24px;
-            border-top: 1px solid rgba(55,65,81,0.8);
-            padding-top: 10px;
-            text-align: center;
-        }
-        .hp-logo {
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: #38bdf8;
-        }
-        .stTabs [role="tablist"] {
-            gap: 4px;
-        }
-        .stTabs [role="tab"] {
-            padding-top: 6px;
-            padding-bottom: 6px;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+  .hp-logo-house {
+    font-size: 15px;
+  }
 
+  .hp-logo-text {
+    font-weight: 700;
+    font-size: 20px;
+    color: #123047;
+  }
 
-# --------------- HELPERS --------------- #
+  .hp-top-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
 
-def format_price(value: int) -> str:
-    return "${:,.0f}".format(value)
+  .hp-tab-button {
+    border: none;
+    border-radius: 999px;
+    padding: 10px 18px;
+    background: #0b7899;
+    color: #e7f6fb;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+  }
 
+  .hp-tab-button.is-active {
+    background: #0a607a;
+    box-shadow: 0 4px 10px rgba(6, 59, 89, 0.4);
+  }
 
-def format_currency(value: float) -> str:
-    return "${:,.0f}".format(value)
+  .hp-tab-button:not(.is-active):hover {
+    background: #0d86ad;
+  }
 
+  .hp-main {
+    max-width: 1120px;
+    margin: 12px auto 0;
+  }
 
-def property_dataframe(city_filter: str = None):
-    df = pd.DataFrame(PROPERTY_DATA)
-    if city_filter:
-        mask = df["city"].str.contains(city_filter, case=False)
-        df = df[mask]
-    return df
+  .hp-tab-panel {
+    display: none;
+  }
 
+  .hp-tab-panel.is-active {
+    display: block;
+  }
 
-def rental_dataframe(city_filter: str = None):
-    df = pd.DataFrame(RENTAL_DATA)
-    if city_filter:
-        mask = df["city"].str.contains(city_filter, case=False)
-        df = df[mask]
-    return df
+  .hp-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(12, 37, 58, 0.12);
+  }
 
+  .hp-panel-card {
+    padding: 24px 28px 28px;
+    margin-bottom: 18px;
+  }
 
-def render_property_card(p):
-    st.markdown(
-        f"""
-        <div class="hp-card">
-            <span class="hp-tag">{p['tag']}</span>
-            <div class="hp-price">{format_price(p['price'])}</div>
-            <div class="hp-metrics">
-                {p['beds']} bd · {p['baths']} ba · {p['sqft']:,} sqft
-            </div>
-            <div class="hp-metrics">
-                {p['neighborhood']} · {p['city']}
-            </div>
-            <div class="hp-metrics" style="margin-top:4px;">
-                HomePath Score: <b>{p['score']}</b>
-                {" · Est. monthly cashflow: <b>" + format_currency(p['cashflow']) + "</b>" if p['cashflow'] else ""}
-            </div>
+  .hp-page-title {
+    margin: 0 0 4px;
+    font-size: 26px;
+    font-weight: 700;
+    color: #123047;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .hp-emoji-wave {
+    font-size: 24px;
+  }
+
+  .hp-page-subtitle {
+    margin: 0 0 20px;
+    color: #50657a;
+  }
+
+  .hp-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .hp-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .hp-feature-card {
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    background: #f7fbfd;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(8, 31, 48, 0.06);
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .hp-feature-card-tight {
+    cursor: default;
+  }
+
+  .hp-feature-icon-block {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #0b7899;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #ffffff;
+  }
+
+  .hp-feature-text h2 {
+    margin: 0 0 4px;
+    font-size: 16px;
+  }
+
+  .hp-feature-text p {
+    margin: 0;
+    font-size: 14px;
+    color: #52677b;
+  }
+
+  .hp-cta-section {
+    margin-top: 28px;
+    text-align: center;
+  }
+
+  .hp-cta-question {
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  .hp-primary-btn {
+    border: none;
+    border-radius: 999px;
+    padding: 10px 22px;
+    font-size: 15px;
+    font-weight: 600;
+    background: #0b7899;
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(10, 76, 105, 0.5);
+  }
+
+  .hp-btn-inline {
+    margin-top: 12px;
+  }
+
+  .hp-primary-btn:hover {
+    background: #0a607a;
+  }
+
+  .hp-muted {
+    color: #6b8195;
+    font-size: 14px;
+  }
+
+  .hp-panel-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .hp-logo-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .hp-panel-links {
+    display: flex;
+    gap: 18px;
+    font-size: 14px;
+  }
+
+  .hp-panel-links a {
+    color: #0b7899;
+    text-decoration: none;
+  }
+
+  .hp-panel-links a:hover {
+    text-decoration: underline;
+  }
+
+  .hp-logo-small {
+    font-size: 14px;
+    font-weight: 600;
+    color: #123047;
+  }
+
+  .hp-compare-controls {
+    display: grid;
+    grid-template-columns: 1.1fr 1.1fr auto;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .hp-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 14px;
+  }
+
+  .hp-form-group label {
+    color: #47617a;
+  }
+
+  .hp-form-group input,
+  .hp-form-group select {
+    border-radius: 999px;
+    border: 1px solid #c0d1df;
+    padding: 8px 12px;
+    font-size: 14px;
+    outline: none;
+  }
+
+  .hp-form-group input:focus,
+  .hp-form-group select:focus {
+    border-color: #0b7899;
+  }
+
+  .hp-btn-compare {
+    align-self: flex-end;
+    padding-inline: 20px;
+  }
+
+  .hp-compare-cards {
+    margin-top: 6px;
+  }
+
+  .hp-stat-card {
+    padding: 16px 16px 18px;
+    border-radius: 14px;
+    background: #f7fbfd;
+    box-shadow: 0 4px 10px rgba(8, 31, 48, 0.06);
+    text-align: center;
+  }
+
+  .hp-stat-icon {
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+
+  .hp-stat-main {
+    margin: 6px 0 2px;
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .hp-repair-header {
+    display: grid;
+    grid-template-columns: 2.1fr 1.1fr;
+    gap: 12px;
+    margin-top: 8px;
+    margin-bottom: 18px;
+  }
+
+  .hp-readonly-input {
+    border-radius: 999px;
+    border: 1px solid #c0d1df;
+    padding: 9px 12px;
+    font-size: 14px;
+    background: #f7fbfd;
+    color: #3f566b;
+  }
+
+  .hp-repair-body {
+    align-items: flex-start;
+  }
+
+  .hp-repair-amount {
+    font-size: 34px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: #123047;
+  }
+
+  .hp-section-title {
+    margin: 18px 0 10px;
+    font-size: 16px;
+  }
+
+  .hp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  .hp-table th,
+  .hp-table td {
+    padding: 8px 4px;
+    border-bottom: 1px solid #dde6ee;
+    text-align: left;
+  }
+
+  .hp-comps-list {
+    list-style: none;
+    padding: 0;
+    margin: 6px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 14px;
+  }
+
+  .hp-comps-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dde6ee;
+  }
+
+  .hp-comp-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+
+  .hp-investor-card {
+    padding: 16px 18px;
+    border-radius: 12px;
+    background: #f7fbfd;
+    box-shadow: 0 4px 10px rgba(8, 31, 48, 0.06);
+  }
+
+  .hp-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 12px;
+  }
+
+  .hp-metrics-list {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 14px;
+  }
+
+  .hp-metrics-list li {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .hp-rent-top {
+    display: grid;
+    grid-template-columns: 2.2fr 1.1fr;
+    gap: 18px;
+  }
+
+  .hp-rent-search h2 {
+    margin: 4px 0 4px;
+    font-size: 20px;
+  }
+
+  .hp-form-grid-3 {
+    grid-template-columns: 1.3fr 1.1fr 0.9fr;
+    margin-top: 8px;
+  }
+
+  .hp-form-grid-2 {
+    margin-top: 10px;
+  }
+
+  .hp-form-group-button {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  .hp-full-width {
+    width: 100%;
+  }
+
+  .hp-rent-side h3 {
+    margin: 0 0 4px;
+    font-size: 16px;
+  }
+
+  .hp-rent-side h3 span {
+    color: #0b7899;
+  }
+
+  .hp-rent-budget-card {
+    margin-top: 12px;
+  }
+
+  .with-icon {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .hp-house-icon {
+    font-size: 18px;
+  }
+
+  .hp-rent-cards {
+    margin-top: 10px;
+  }
+
+  .hp-rent-card {
+    border-radius: 14px;
+    overflow: hidden;
+    background: #f7fbfd;
+    box-shadow: 0 6px 15px rgba(9, 32, 49, 0.15);
+  }
+
+  .hp-rent-image {
+    height: 150px;
+    background: linear-gradient(135deg, #1d3557, #14213d);
+  }
+
+  .hp-rent-image-house {
+    background: linear-gradient(135deg, #1d3557, #0b7899);
+  }
+
+  .hp-rent-body {
+    padding: 12px 14px 14px;
+  }
+
+  .hp-rent-price {
+    margin: 0 0 4px;
+    font-weight: 700;
+  }
+
+  .hp-rent-label {
+    margin: 8px 0 0;
+    font-size: 14px;
+    color: #1b3a4b;
+    font-weight: 500;
+  }
+
+  .hp-renttools-grid {
+    margin-top: 10px;
+  }
+
+  @media (max-width: 900px) {
+    .hp-header-inner {
+      padding: 14px 14px 16px;
+    }
+
+    .hp-top-tabs {
+      flex-wrap: wrap;
+    }
+
+    .hp-grid-2,
+    .hp-grid-3,
+    .hp-compare-controls,
+    .hp-repair-header,
+    .hp-rent-top,
+    .hp-form-grid-3 {
+      grid-template-columns: 1fr;
+    }
+
+    .hp-panel-card {
+      padding-inline: 16px;
+    }
+  }
+  </style>
+</head>
+<body>
+  <div class="hp-page">
+    <header class="hp-header">
+      <div class="hp-header-inner">
+        <div class="hp-logo">
+          <div class="hp-logo-icon">
+            <span class="hp-logo-house">A</span>
+          </div>
+          <span class="hp-logo-text">HomePathAI</span>
         </div>
-        """,
-        unsafe_allow_html=True
-    )
 
+        <nav class="hp-top-tabs">
+          <button class="hp-tab-button is-active" data-tab="buyer">
+            First time buyer friendly
+          </button>
+          <button class="hp-tab-button" data-tab="investor">
+            Investor deal analysis
+          </button>
+          <button class="hp-tab-button" data-tab="neighborhood">
+            Neighbor insights
+          </button>
+          <button class="hp-tab-button" data-tab="repair">
+            Repair estimator
+          </button>
+          <button class="hp-tab-button" data-tab="rent">
+            Rent &amp; moving
+          </button>
+          <button class="hp-tab-button" data-tab="renttools">
+            Rent &amp; moving tools
+          </button>
+        </nav>
+      </div>
+    </header>
 
-def repair_estimate(sqft: int, level: str) -> int:
-    base = 22  # $/sqft light
-    if level == "Light (paint, fixtures, cosmetics)":
-        cost_per_sqft = base
-    elif level == "Medium (kitchens, baths, flooring)":
-        cost_per_sqft = base + 12
-    else:
-        cost_per_sqft = base + 25
-    return int(sqft * cost_per_sqft)
+    <main class="hp-main">
+      <!-- FIRST-TIME BUYER TAB -->
+      <section id="tab-buyer" class="hp-tab-panel is-active">
+        <div class="hp-card hp-panel-card">
+          <h1 class="hp-page-title">
+            First-time buyer friendly<span class="hp-emoji-wave">👋</span>
+          </h1>
+          <p class="hp-page-subtitle">
+            AI resources &amp; beginner-friendly tips
+          </p>
 
+          <div class="hp-grid-2">
+            <button class="hp-feature-card">
+              <div class="hp-feature-icon-block">📘</div>
+              <div class="hp-feature-text">
+                <h2>First-time buyer basics</h2>
+                <p>Buying your first home? Start here!</p>
+              </div>
+            </button>
 
-def investor_metrics(arv: int, purchase: int, rehab: int, rent: int):
-    total_basis = purchase + rehab
-    equity = max(arv - total_basis, 0)
-    coc_return = None
-    if purchase > 0:
-        coc_return = (max((rent * 12) - (0.4 * rent * 12), 0) / purchase) * 100
-    return total_basis, equity, coc_return
+            <button class="hp-feature-card">
+              <div class="hp-feature-icon-block">📋</div>
+              <div class="hp-feature-text">
+                <h2>Step-by-step guides</h2>
+                <p>Understand each phase of buying</p>
+              </div>
+            </button>
 
+            <button class="hp-feature-card">
+              <div class="hp-feature-icon-block">🧮</div>
+              <div class="hp-feature-text">
+                <h2>Affordability calculator</h2>
+                <p>See what you can comfortably afford</p>
+              </div>
+            </button>
 
-def smartsearch_response(query: str, persona: str):
-    query_l = query.lower()
-    bullets = []
+            <button class="hp-feature-card">
+              <div class="hp-feature-icon-block">🧾</div>
+              <div class="hp-feature-text">
+                <h2>Mortgage pre-approval</h2>
+                <p>Get pre-approved for better rates</p>
+              </div>
+            </button>
+          </div>
 
-    if "detroit" in query_l:
-        bullets.append("✅ Prioritizing Detroit Metro with strong cash-flow and improving blocks.")
-    if "miami" in query_l or "florida" in query_l:
-        bullets.append("☀️ Highlighting Miami sub-markets with solid rent-to-price ratios.")
-    if "family" in query_l or "schools" in query_l:
-        bullets.append("🏫 Weighting school ratings, parks, and low traffic noise higher.")
-    if "walk" in query_l or "walkable" in query_l:
-        bullets.append("🚶 Focusing on walk scores, transit access, and nearby daily amenities.")
-    if "cheap" in query_l or "budget" in query_l or "under" in query_l:
-        bullets.append("💸 Filtering for best value vs area median price, not just lowest price.")
-
-    persona_line = {
-        "Buyer": "I’ll return a short list of 3–7 neighborhoods and homes that match your budget and lifestyle.",
-        "Investor": "I’ll surface deals with margin, rental demand, and distress indicators.",
-        "Renter": "I’ll focus on safe, convenient rentals that don’t wreck your monthly budget.",
-    }[persona]
-
-    if not bullets:
-        bullets.append("✨ I’ll blend lifestyle, risk, and affordability into one ranked list of options.")
-
-    return bullets, persona_line
-
-
-# --------------- PAGE RENDERERS --------------- #
-
-def render_home():
-    inject_css()
-
-    # Hero
-    st.markdown(
-        """
-        <div class="home-hero">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;">
-                <div style="flex:1;min-width:260px;">
-                    <div class="hp-logo">HOMEPATHAI</div>
-                    <div class="hp-title">Find your next home with AI that actually thinks like a local.</div>
-                    <div class="hp-sub">
-                        Smart search, investor-grade numbers, and renter tools — all in one experience built for
-                        first-time buyers, flippers, house hackers, and renters.
-                    </div>
-                    <div class="hp-pill-row">
-                        <div class="hp-pill">✨ First-time buyer friendly</div>
-                        <div class="hp-pill">📊 Investor deal analysis</div>
-                        <div class="hp-pill">🗺️ Neighborhood intelligence</div>
-                        <div class="hp-pill">🛠️ Repair cost estimator</div>
-                        <div class="hp-pill">📦 Rent & moving tools</div>
-                    </div>
-                </div>
-                <div style="flex:0.9;min-width:260px;margin-top:10px;">
-                    <div style="
-                        background: radial-gradient(circle at top left, #1f2937 0, #020617 60%);
-                        border-radius: 16px;
-                        padding: 12px 14px;
-                        border: 1px solid rgba(148,163,184,0.6);
-                    ">
-                        <div style="font-size:13px;color:#9ca3af;margin-bottom:6px;">SmartSearch – conversational search</div>
-                    </div>
-                </div>
-            </div>
+          <div class="hp-cta-section">
+            <p class="hp-cta-question">Have questions?</p>
+            <button class="hp-primary-btn">Ask our AI assistant</button>
+          </div>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
+      </section>
 
-    st.write("")
-    st.write("")
+      <!-- INVESTOR DEAL ANALYSIS TAB -->
+      <section id="tab-investor" class="hp-tab-panel">
+        <div class="hp-card hp-panel-card">
+          <h1 class="hp-page-title">Investor deal analysis</h1>
+          <p class="hp-page-subtitle">
+            Quickly understand cash flow, returns, and risk on any deal.
+          </p>
 
-    # SmartSearch input row
-    col_query, col_persona = st.columns([3, 1])
-    with col_query:
-        smart_query = st.text_input(
-            "Describe what you're looking for (e.g. “3 bed under 350k in a safe Detroit suburb with good schools”):",
-            key="home_smartsearch",
-        )
-    with col_persona:
-        persona = st.selectbox("I'm searching as a:", ["Buyer", "Investor", "Renter"])
-
-    if st.button("Run SmartSearch (demo)", type="primary"):
-        if not smart_query.strip():
-            st.info("Tell me what you're looking for and I'll guide you.")
-        else:
-            bullets, persona_line = smartsearch_response(smart_query, persona)
-            st.markdown("#### HomePathAI SmartSearch Preview")
-            st.write(persona_line)
-            st.write("")
-            for b in bullets:
-                st.markdown(f"- {b}")
-            st.write("")
-            st.caption("This is a demo preview. In production, this will be powered by live MLS + rental feeds + your preferences over time.")
-
-    st.write("---")
-
-    # Trending homes & neighborhood insight
-    c1, c2 = st.columns([1.4, 1])
-
-    with c1:
-        st.markdown('<div class="hp-section-title">Trending homes near you</div>', unsafe_allow_html=True)
-        st.markdown(
-            '<div class="hp-section-sub">Sample homes across Detroit, Grand Rapids, Chicago, and Miami with buyer- and investor-friendly options.</div>',
-            unsafe_allow_html=True,
-        )
-        st.write("")
-        df = pd.DataFrame(PROPERTY_DATA)
-        for i, row in df.iterrows():
-            with st.container():
-                render_property_card(row)
-                st.write("")
-
-    with c2:
-        st.markdown('<div class="hp-section-title">Neighborhood snapshot</div>', unsafe_allow_html=True)
-        st.markdown(
-            '<div class="hp-section-sub">Safety, price, and walkability at a glance — powered by a simple heat-style map in this demo.</div>',
-            unsafe_allow_html=True,
-        )
-
-        df_map = pd.DataFrame(PROPERTY_DATA)
-        if not df_map.empty:
-            center_lat = df_map["lat"].mean()
-            center_lon = df_map["lon"].mean()
-            layer = pdk.Layer(
-                "ScatterplotLayer",
-                data=df_map,
-                get_position='[lon, lat]',
-                get_radius=400,
-                get_fill_color='[56, 189, 248, 190]',
-                pickable=True,
-            )
-            view_state = pdk.ViewState(
-                latitude=center_lat,
-                longitude=center_lon,
-                zoom=4.2,
-                bearing=0,
-                pitch=35,
-            )
-            st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view_state, tooltip={"text": "{city}\n{neighborhood}"}))
-        st.write("")
-        st.markdown(
-            """
-            <div class="hp-card">
-                <div class="hp-badge">Demo insight</div>
-                <div class="hp-metrics" style="margin-top:6px;">
-                    • Detroit & Grand Rapids showing strong cash-flow and affordability.<br>
-                    • Miami & Chicago showing higher appreciation but tighter cash-flow.<br>
-                    • In production, this would be driven by crime, schools, income & rent trends.
+          <div class="hp-grid-2">
+            <div class="hp-investor-card">
+              <h2>Deal snapshot</h2>
+              <p class="hp-muted">
+                Enter a sample deal below to see projected returns.
+              </p>
+              <div class="hp-form-grid">
+                <div class="hp-form-group">
+                  <label>Purchase price</label>
+                  <input type="text" placeholder="$250,000" />
                 </div>
+                <div class="hp-form-group">
+                  <label>Estimated rent</label>
+                  <input type="text" placeholder="$2,100 / mo" />
+                </div>
+                <div class="hp-form-group">
+                  <label>Down payment</label>
+                  <input type="text" placeholder="20%" />
+                </div>
+                <div class="hp-form-group">
+                  <label>Interest rate</label>
+                  <input type="text" placeholder="6.5%" />
+                </div>
+              </div>
+              <button class="hp-primary-btn hp-btn-inline">
+                Run quick analysis
+              </button>
             </div>
-            """,
-            unsafe_allow_html=True,
-        )
 
-    st.markdown(
-        """
-        <div class="hp-footer">
-            For you · Built to make your home buying simple. HomePathAI unifies buyers, investors, renters, and agents in one smart platform.
+            <div class="hp-investor-card">
+              <h2>Projected returns</h2>
+              <ul class="hp-metrics-list">
+                <li>
+                  <span>Monthly cash flow</span>
+                  <strong>$380</strong>
+                </li>
+                <li>
+                  <span>Cash-on-cash return</span>
+                  <strong>9.4%</strong>
+                </li>
+                <li>
+                  <span>Cap rate</span>
+                  <strong>7.1%</strong>
+                </li>
+                <li>
+                  <span>5-year equity built</span>
+                  <strong>$52,000</strong>
+                </li>
+              </ul>
+              <p class="hp-muted">
+                Numbers shown are sample outputs only for demo purposes.
+              </p>
+            </div>
+          </div>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
+      </section>
 
+      <!-- NEIGHBORHOOD / COMPARE CITIES TAB -->
+      <section id="tab-neighborhood" class="hp-tab-panel">
+        <div class="hp-card hp-panel-card">
+          <div class="hp-panel-header-row">
+            <h1 class="hp-page-title">Compare Cities</h1>
+            <div class="hp-logo-small">HomePathAI</div>
+          </div>
+          <p class="hp-page-subtitle">
+            Understanding key differences before you invest or move.
+          </p>
 
-def render_buyer_hub():
-    st.header("Buyer Hub · First-time buyer friendly")
-    st.caption("Guided path from 'curious' to 'confident pre-approval' — without the overwhelm.")
+          <div class="hp-compare-controls">
+            <div class="hp-form-group">
+              <label>Select a city</label>
+              <select>
+                <option>Detroit, MI</option>
+                <option>Grand Rapids, MI</option>
+                <option>Chicago, IL</option>
+                <option>Cleveland, OH</option>
+              </select>
+            </div>
+            <div class="hp-form-group">
+              <label>Compare with</label>
+              <select>
+                <option>Pittsburgh, PA</option>
+                <option>Columbus, OH</option>
+                <option>Indianapolis, IN</option>
+              </select>
+            </div>
+            <button class="hp-primary-btn hp-btn-compare">Compare</button>
+          </div>
 
-    tab1, tab2, tab3 = st.tabs(
-        ["Buying roadmap", "Payment & affordability", "Explore lenders"]
-    )
+          <div class="hp-grid-3 hp-compare-cards">
+            <div class="hp-stat-card">
+              <div class="hp-stat-icon">💲</div>
+              <h2>Cost of living</h2>
+              <p class="hp-stat-main">8%</p>
+              <p class="hp-muted">above average</p>
+            </div>
 
-    with tab1:
-        st.subheader("Step-by-step path")
-        steps = [
-            "1. Tell us your budget, income, and what 'home' looks like for you.",
-            "2. HomePathAI maps neighborhoods that actually match your lifestyle.",
-            "3. We estimate monthly payments & closing costs — in plain English.",
-            "4. You connect with friendly lenders & agents that fit your profile.",
-            "5. We help you compare 3–5 top options, not 300 random listings.",
-        ]
-        for s in steps:
-            st.markdown(f"- {s}")
+            <div class="hp-stat-card">
+              <div class="hp-stat-icon">🛡️</div>
+              <h2>Crime rate</h2>
+              <p class="hp-stat-main">High</p>
+              <p class="hp-muted">vs national average</p>
+            </div>
 
-        st.info("In the real app, this becomes an interactive onboarding flow that saves your profile and syncs to SmartSearch and your lender.")
+            <div class="hp-stat-card">
+              <div class="hp-stat-icon">🏫</div>
+              <h2>Schools</h2>
+              <p class="hp-stat-main">6.4</p>
+              <p class="hp-muted">average rating</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-    with tab2:
-        st.subheader("Estimate a monthly payment (demo only)")
-        col1, col2 = st.columns(2)
-        with col1:
-            home_price = st.number_input("Home price", 80000, 1500000, 300000, step=5000)
-            down_pct = st.slider("Down payment (%)", 0, 30, 5)
-        with col2:
-            rate = st.slider("Interest rate (%)", 2.5, 10.0, 6.75, 0.05)
-            years = st.selectbox("Loan term", [15, 20, 30], index=2)
+      <!-- REPAIR ESTIMATOR TAB -->
+      <section id="tab-repair" class="hp-tab-panel">
+        <div class="hp-card hp-panel-card">
+          <div class="hp-panel-header-row">
+            <div class="hp-logo-left">
+              <div class="hp-logo-icon">
+                <span class="hp-logo-house">A</span>
+              </div>
+              <span class="hp-logo-text">HomePathAI</span>
+            </div>
+            <div class="hp-panel-links">
+              <a href="#">View comps</a>
+              <a href="#">Explore funding options</a>
+            </div>
+          </div>
 
-        loan_amount = int(home_price * (1 - down_pct / 100))
-        n_payments = years * 12
-        monthly_rate = rate / 100 / 12
-        if monthly_rate > 0:
-            monthly_pmt = loan_amount * (monthly_rate * (1 + monthly_rate) ** n_payments) / (
-                (1 + monthly_rate) ** n_payments - 1
-            )
-        else:
-            monthly_pmt = loan_amount / n_payments
+          <h1 class="hp-page-title">Repair estimator</h1>
 
-        taxes_escrow = home_price * 0.015 / 12  # very rough
-        insurance = 90
-        total_monthly = monthly_pmt + taxes_escrow + insurance
+          <div class="hp-repair-header">
+            <div class="hp-form-group">
+              <label>Address</label>
+              <div class="hp-readonly-input">
+                123 Main St, Detroit, MI · Single-family
+              </div>
+            </div>
+            <div class="hp-form-group">
+              <label>Total square footage</label>
+              <input type="text" value="1,800" />
+            </div>
+          </div>
 
-        st.write("### Estimated monthly payment")
-        st.metric("Total est. monthly payment", f"{format_currency(total_monthly)}")
+          <div class="hp-grid-2 hp-repair-body">
+            <div>
+              <p class="hp-repair-amount">$51,800</p>
+              <p class="hp-muted">
+                Based on analysis of similar homes
+              </p>
 
-        st.caption("This is a rough demo. The production app will use local taxes, insurance, and PMI rules per county & loan type.")
+              <h2 class="hp-section-title">Repair costs breakdown</h2>
+              <table class="hp-table">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Estimated cost</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Roof</td><td>$9,500</td></tr>
+                  <tr><td>HVAC</td><td>$7,800</td></tr>
+                  <tr><td>Kitchen</td><td>$15,000</td></tr>
+                  <tr><td>Bathrooms</td><td>$8,500</td></tr>
+                  <tr><td>Interior paint</td><td>$3,500</td></tr>
+                  <tr><td>Landscaping</td><td>$5,500</td></tr>
+                </tbody>
+              </table>
+            </div>
 
-    with tab3:
-        st.subheader("Featured sample lenders (demo)")
-        df = pd.DataFrame(LENDERS)
-        st.dataframe(df, hide_index=True)
-        st.info("In production, this becomes a live marketplace where buyers compare rates & fees, then get pre-approved without leaving HomePathAI.")
+            <div>
+              <h2 class="hp-section-title">Comparable homes</h2>
+              <ul class="hp-comps-list">
+                <li>
+                  <div>
+                    <strong>456 Maple Rd</strong><br />
+                    Detroit, MI
+                  </div>
+                  <div class="hp-comp-meta">
+                    <span>$240,000</span>
+                    <span>1,750 sq ft</span>
+                  </div>
+                </li>
+                <li>
+                  <div>
+                    <strong>28 Grand Ave</strong><br />
+                    Detroit, MI
+                  </div>
+                  <div class="hp-comp-meta">
+                    <span>$265,000</span>
+                    <span>1,900 sq ft</span>
+                  </div>
+                </li>
+                <li>
+                  <div>
+                    <strong>788 Elmwood Dr</strong><br />
+                    Detroit, MI
+                  </div>
+                  <div class="hp-comp-meta">
+                    <span>$230,000</span>
+                    <span>1,850 sq ft</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
 
+      <!-- RENT & MOVING TAB -->
+      <section id="tab-rent" class="hp-tab-panel">
+        <div class="hp-card hp-panel-card">
+          <div class="hp-panel-header-row">
+            <div class="hp-logo-left">
+              <div class="hp-logo-icon">
+                <span class="hp-logo-house">A</span>
+              </div>
+              <span class="hp-logo-text">Rent &amp; Moving</span>
+            </div>
+          </div>
 
-def render_investor_hub():
-    st.header("Investor Hub · Deals, repairs & skip tracing in one place")
-    st.caption("High-level investor tools — all demo logic, no real data or skip tracing in this version.")
+          <div class="hp-rent-top">
+            <div class="hp-rent-search">
+              <h2>Rent Listings</h2>
+              <p class="hp-muted">
+                Browse rentals from MLS feeds that meet your budget
+              </p>
 
-    tab1, tab2, tab3, tab4 = st.tabs(
-        ["Deal analyzer", "Repair estimator", "Skip tracing (mock)", "Sample investor leads"]
-    )
+              <div class="hp-form-grid hp-form-grid-3">
+                <div class="hp-form-group">
+                  <label>City or ZIP</label>
+                  <input type="text" value="Detroit, MI" />
+                </div>
+                <div class="hp-form-group">
+                  <label>Budget</label>
+                  <input type="text" value="$1,800" />
+                </div>
+                <div class="hp-form-group hp-form-group-button">
+                  <label>&nbsp;</label>
+                  <button class="hp-primary-btn hp-full-width">
+                    Search
+                  </button>
+                </div>
+              </div>
 
-    with tab1:
-        st.subheader("Quick flip / BRRRR deal analyzer (demo)")
-        col1, col2 = st.columns(2)
-        with col1:
-            arv = st.number_input("After-repair value (ARV)", 50000, 1500000, 350000, step=5000)
-            purchase = st.number_input("Purchase price", 30000, 1000000, 210000, step=5000)
-        with col2:
-            rehab = st.number_input("Estimated rehab budget", 0, 500000, 60000, step=5000)
-            rent = st.number_input("Expected monthly rent (if held)", 0, 15000, 2400, step=100)
+              <div class="hp-form-grid hp-form-grid-2">
+                <div class="hp-form-group">
+                  <label>Beds</label>
+                  <select>
+                    <option>Any</option>
+                    <option>1+</option>
+                    <option>2+</option>
+                    <option>3+</option>
+                  </select>
+                </div>
+                <div class="hp-form-group">
+                  <label>Bath</label>
+                  <select>
+                    <option>Any</option>
+                    <option>1+</option>
+                    <option>2+</option>
+                  </select>
+                </div>
+              </div>
+            </div>
 
-        basis, equity, coc = investor_metrics(arv, purchase, rehab, rent)
-        st.write("### Deal snapshot")
-        st.metric("Total project cost (basis)", format_currency(basis))
-        st.metric("Instant equity at ARV", format_currency(equity))
+            <aside class="hp-rent-side">
+              <h3>Moving Hub: <span>Funding</span></h3>
+              <p class="hp-muted">
+                Explore funding options, rental deposits, and moving grants
+                available in your area.
+              </p>
+            </aside>
+          </div>
+        </div>
 
-        if coc is not None:
-            st.metric("Est. cash-on-cash return (year 1)", f"{coc:,.1f}%")
+        <div class="hp-card hp-panel-card hp-rent-budget-card">
+          <h2 class="hp-section-title with-icon">
+            <span class="hp-house-icon">🏠</span>
+            Rent Budget Helper
+          </h2>
 
-        st.caption("Demo math only. Real version plugs into comps, rents, and financing options.")
+          <div class="hp-grid-2 hp-rent-cards">
+            <div class="hp-rent-card">
+              <div class="hp-rent-image"></div>
+              <div class="hp-rent-body">
+                <p class="hp-rent-price">$1,600/mo</p>
+                <p class="hp-muted">Studio, 1 bath · Detroit, MI</p>
+                <p class="hp-rent-label">Rent only</p>
+              </div>
+            </div>
 
-    with tab2:
-        st.subheader("Repair cost estimator (photo-free demo version)")
-        level = st.selectbox(
-            "Scope of work",
-            [
-                "Light (paint, fixtures, cosmetics)",
-                "Medium (kitchens, baths, flooring)",
-                "Heavy (systems, layout changes, major rehab)",
-            ],
-        )
-        sqft = st.number_input("Approximate finished square footage", 400, 6000, 1500, step=50)
-        if st.button("Estimate rehab cost", key="investor_repair_btn"):
-            est = repair_estimate(sqft, level)
-            st.success(f"Estimated rehab budget: {format_currency(est)}")
-            st.caption("In production, this will be driven by before/after photo datasets, local labor & material costs by ZIP.")
+            <div class="hp-rent-card">
+              <div class="hp-rent-image hp-rent-image-house"></div>
+              <div class="hp-rent-body">
+                <p class="hp-rent-price">$1,750/mo</p>
+                <p class="hp-muted">
+                  3 bd | 1,450 sq ft · Dearborn, MI
+                </p>
+                <p class="hp-rent-label">$750/mo after house-hack</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-    with tab3:
-        st.subheader("Skip tracing & lead prioritization (mock)")
-        st.write("This is UI-only — no real skip tracing is happening in this demo.")
+      <!-- RENT & MOVING TOOLS TAB -->
+      <section id="tab-renttools" class="hp-tab-panel">
+        <div class="hp-card hp-panel-card">
+          <h1 class="hp-page-title">Rent &amp; moving tools</h1>
+          <p class="hp-page-subtitle">
+            Quick calculators and helpers for renters and people relocating.
+          </p>
 
-        owner_name = st.text_input("Owner name or address")
-        motivation = st.multiselect(
-            "Potential motivation signals (demo tags)",
-            ["Pre-foreclosure", "Out-of-state owner", "Vacant", "Inherited", "Code violations"],
-        )
-        if st.button("Run skip trace (demo)", key="skiptrace_btn"):
-            st.info("In the real app, this would call a skip tracing provider and enrich the record.")
+          <div class="hp-grid-3 hp-renttools-grid">
+            <div class="hp-feature-card hp-feature-card-tight">
+              <div class="hp-feature-icon-block">📍</div>
+              <div class="hp-feature-text">
+                <h2>Best areas for renters</h2>
+                <p>Find renter-friendly neighborhoods by budget.</p>
+              </div>
+            </div>
 
-            st.markdown("##### Demo result")
-            st.write(
-                """
-                • Owner: **Sample Owner LLC**  
-                • Mailing address: **Somewhere in FL (out-of-state)**  
-                • Phones: **3 possible numbers**, 1 marked as “likely mobile”  
-                • Email: **Pull 1–2 if available**  
-                • Motivation score: **High** (3 of your selected signals match)
-                """
-            )
-            st.caption("This is purely illustrative UI. No real personal data is used or stored in this demo.")
+            <div class="hp-feature-card hp-feature-card-tight">
+              <div class="hp-feature-icon-block">📦</div>
+              <div class="hp-feature-text">
+                <h2>Moving cost estimator</h2>
+                <p>Get a rough estimate of moving expenses.</p>
+              </div>
+            </div>
 
-    with tab4:
-        st.subheader("Sample investor-style leads (demo data)")
-        df = pd.DataFrame(
-            [
-                {
-                    "Address": "123 Maple St, Detroit, MI",
-                    "ARV": 310000,
-                    "As-is": 185000,
-                    "Est. Rehab": 55000,
-                    "Motivation": "Vacant · Out-of-state owner",
-                },
-                {
-                    "Address": "456 Oak Ave, Grand Rapids, MI",
-                    "ARV": 275000,
-                    "As-is": 160000,
-                    "Est. Rehab": 35000,
-                    "Motivation": "Long-term landlord · Deferred maintenance",
-                },
-                {
-                    "Address": "789 Brick Rd, Chicago, IL",
-                    "ARV": 520000,
-                    "As-is": 330000,
-                    "Est. Rehab": 90000,
-                    "Motivation": "Estate sale · Needs full rehab",
-                },
-            ]
-        )
-        df["Spread"] = df["ARV"] - df["As-is"] - df["Est. Rehab"]
-        st.dataframe(df, hide_index=True)
-        st.caption("This is fake data. In production, this would come from your wholesaling / off-market data feeds and filters.")
+            <div class="hp-feature-card hp-feature-card-tight">
+              <div class="hp-feature-icon-block">⚖️</div>
+              <div class="hp-feature-text">
+                <h2>Rent vs. buy helper</h2>
+                <p>Compare long-term costs of renting vs buying.</p>
+              </div>
+            </div>
 
+            <div class="hp-feature-card hp-feature-card-tight">
+              <div class="hp-feature-icon-block">🤝</div>
+              <div class="hp-feature-text">
+                <h2>Roommate matcher (demo)</h2>
+                <p>See how AI could match you with compatible roommates.</p>
+              </div>
+            </div>
 
-def render_rent_moving():
-    st.header("Rent & Moving · Make relocating less painful")
-    st.caption("For renters, relocators, and anyone comparing cities without guessing.")
+            <div class="hp-feature-card hp-feature-card-tight">
+              <div class="hp-feature-icon-block">🔐</div>
+              <div class="hp-feature-text">
+                <h2>Deposit planner</h2>
+                <p>Plan for deposits, fees, and move-in costs.</p>
+              </div>
+            </div>
 
-    tab1, tab2 = st.tabs(["Rentals & affordability", "Moving & Section 8 resources"])
+            <div class="hp-feature-card hp-feature-card-tight">
+              <div class="hp-feature-icon-block">🗺️</div>
+              <div class="hp-feature-text">
+                <h2>Relocation checklist</h2>
+                <p>Stay organized through your move.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 
-    with tab1:
-        st.subheader("Sample rentals by city (demo data)")
-        city = st.selectbox("Choose a city", ["All", "Detroit, MI", "Grand Rapids, MI"])
-        if city == "All":
-            df = rental_dataframe()
-        else:
-            df = rental_dataframe(city)
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const buttons = document.querySelectorAll(".hp-tab-button");
+    const panels = {
+      buyer: document.getElementById("tab-buyer"),
+      investor: document.getElementById("tab-investor"),
+      neighborhood: document.getElementById("tab-neighborhood"),
+      repair: document.getElementById("tab-repair"),
+      rent: document.getElementById("tab-rent"),
+      renttools: document.getElementById("tab-renttools"),
+    };
 
-        st.dataframe(df, hide_index=True)
-        st.caption("This is demo data. The real app will plug into partner rental feeds and apply your affordability rules.")
+    buttons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const target = btn.dataset.tab;
 
-    with tab2:
-        st.subheader("Moving helpers")
-        st.markdown("##### Featured demo moving partners")
-        for m in MOVERS:
-            st.markdown(
-                f"**{m['name']}**  \nAreas: {m['areas']}  \nSpecialty: {m['specialty']}  \nCost tier: {m['estimate']}"
-            )
-            st.write("")
+        buttons.forEach((b) => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
 
-        st.subheader("Section 8 & voucher-friendly info (demo)")
-        st.write(
-            """
-            • We’ll highlight rentals marked as voucher-friendly where possible.  
-            • Explain how payment standards and inspections work in plain English.  
-            • Help renters understand realistic timelines and documentation.
-            """
-        )
-        st.caption("In production, this ties into local housing authority data and filters within the rental feed.")
+        Object.values(panels).forEach((p) =>
+          p.classList.remove("is-active")
+        );
+        panels[target].classList.add("is-active");
+      });
+    });
+  });
+  </script>
+</body>
+</html>
+"""
 
+components.html(html, height=950, scrolling=True)
 
-def render_agent_hub():
-    st.header("Agent Hub · Built for the agents who actually pick up the phone")
-    st.caption("Demo view of how agents will plug into HomePathAI.")
-
-    tab1, tab2 = st.tabs(["Agent marketplace", "Workflow automation (concept)"])
-
-    with tab1:
-        st.subheader("Sample featured agents (demo)")
-        for a in AGENTS:
-            st.markdown(
-                f"""
-                **{a['name']}** — {a['market']}  
-                • Focus: {a['focus']}  
-                • Avg. response time: {a['avg_response']}  
-                • Transactions (last 12 months): {a['deals_year']}
-                """
-            )
-            st.write("")
-
-        st.info("In production, agents will have verified profiles, reviews, coverage maps, and routing from SmartSearch leads.")
-
-    with tab2:
-        st.subheader("AI assistant for agents (concept)")
-        st.write(
-            """
-            Imagine an inbox where HomePathAI:
-
-            • Drafts replies to buyer & investor leads  
-            • Writes MLS-style descriptions from your notes or bullet points  
-            • Suggests comps for pricing conversations  
-            • Nudges you when high-intent leads don’t get a reply  
-            • Syncs to your CRM (kvCORE, Follow Up Boss, etc.)
-
-            This demo doesn’t automate a real inbox yet — it’s here to show how the UX will look and feel.
-            """
-        )
-
-
-def render_help():
-    st.header("About this demo")
-    st.write(
-        """
-        This is a **Streamlit-based concept demo** of HomePathAI — not the full production application.
-
-        What this demo shows:
-
-        • A unified UI for buyers, investors, renters, and agents  
-        • SmartSearch concept flow  
-        • Investor deal analysis and repair estimator logic  
-        • Rent & moving tools concept  
-        • Agent marketplace & automation concept  
-        • Maps and neighborhood snapshots using mock data  
-
-        What this demo does **not** do yet:
-
-        • Connect to real MLS, rental, or skip tracing data  
-        • Store user profiles or login accounts  
-        • Execute real pre-approvals, applications, or funding  
-        • Replace real legal, lending, or tax advice  
-
-        This is designed to help investors, partners, and dev teams **see the product vision clearly** and understand how all pieces fit together.
-        """
-    )
-
-
-# --------------- MAIN --------------- #
-
-def main():
-    inject_css()
-
-    with st.sidebar:
-        st.markdown("### 🏠 HomePathAI")
-        st.caption("All-in-one AI assistant for buyers, investors, renters & agents.")
-        page = st.radio(
-            "Navigate",
-            ["Home", "Buyer Hub", "Investor Hub", "Rent & Moving", "Agent Hub", "Help / About"],
-            index=0,
-        )
-
-    if page == "Home":
-        render_home()
-    elif page == "Buyer Hub":
-        render_buyer_hub()
-    elif page == "Investor Hub":
-        render_investor_hub()
-    elif page == "Rent & Moving":
-        render_rent_moving()
-    elif page == "Agent Hub":
-        render_agent_hub()
-    else:
-        render_help()
-
-
-if __name__ == "__main__":
-    main()
 
 
 

@@ -1,5 +1,6 @@
 import streamlit as st
-import streamlit.components.v1 as components
+import pandas as pd
+import numpy as np
 
 st.set_page_config(
     page_title="HomePathAI Demo",
@@ -7,374 +8,147 @@ st.set_page_config(
     layout="wide",
 )
 
-# Hide Streamlit chrome and tighten padding
+# ============================================
+# SIDEBAR NAVIGATION (Matches screenshot)
+# ============================================
+st.sidebar.title("HomePathAI")
+st.sidebar.caption("AI home assistant for buyers, renters, investors & agents.")
+st.sidebar.write("---")
+st.sidebar.markdown("### Navigate")
+st.sidebar.button("Buyer Hub")
+st.sidebar.button("Investor Hub")
+st.sidebar.button("Neighbor Hub")
+st.sidebar.button("Repair & Moving")
+st.sidebar.button("Agent Hub")
+st.sidebar.button("Help / About")
+
+# ============================================
+# HERO HEADER (Matches your screenshot style)
+# ============================================
 st.markdown(
     """
-    <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    .block-container {
-        padding-top: 0rem;
-        padding-bottom: 0rem;
-        padding-left: 0rem;
-        padding-right: 0rem;
-    }
-    </style>
+    <div style="padding: 28px; background:#0f1c2e; border-radius:12px; color:white;">
+        <h1 style="margin:0px;">Find your next home with AI that actually thinks like a local.</h1>
+        <p style="opacity:0.9;">Smart search, investor-grade numbers, repair tools — all in one experience built for first-time buyers, flippers, house hackers, and renters.</p>
+
+        <div style="margin-top:12px;">
+            <span style="padding:8px 14px; background:#1d2f49; border-radius:8px; margin-right:6px;">First-time buyer friendly</span>
+            <span style="padding:8px 14px; background:#1d2f49; border-radius:8px; margin-right:6px;">Investor deal analysis</span>
+            <span style="padding:8px 14px; background:#1d2f49; border-radius:8px; margin-right:6px;">Neighborhood insights</span>
+            <span style="padding:8px 14px; background:#1d2f49; border-radius:8px; margin-right:6px;">Repair estimator</span>
+            <span style="padding:8px 14px; background:#1d2f49; border-radius:8px;">Rent & moving tools</span>
+        </div>
+
+        <div style="margin-top:18px;">
+            <input placeholder="SmartSearch — conversational search" 
+                   style="width:70%; padding:12px; border-radius:8px; border:none;"/>
+            <button style="padding:12px 18px; background:#4ca1ff; border:none; border-radius:8px; margin-left:8px; color:white;">
+                Search
+            </button>
+        </div>
+    </div>
     """,
-    unsafe_allow_html=True,
+    unsafe_allow_html=True
 )
 
-html = """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>HomePathAI Demo</title>
+st.write("")
 
-<style>
-:root {
-  --bg: #e9f1f4;
-  --card: #ffffff;
-  --primary: #0b7899;
-  --primary-dark: #075e78;
-  --accent: #f97316;
-  --text-main: #123047;
-  --text-sub: #5f7d95;
-}
+# ============================================
+# SMARTSEARCH QUICK DEMO
+# ============================================
+col1, col2 = st.columns([3,1])
+with col1:
+    st.text_input(
+        "Describe what you're looking for", 
+        placeholder="Eg. 3 bed under $250k in a safe Detroit suburb with good schools"
+    )
+with col2:
+    st.selectbox("I'm searching as a:", ["Buyer", "Investor", "Renter", "Moving"])
 
-/* global */
-*,
-*::before,
-*::after { box-sizing:border-box; }
+st.button("Run SmartSearch (demo)", type="primary")
 
-body {
-  margin:0;
-  font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  background:var(--bg);
-  color:var(--text-main);
-}
+st.write("---")
 
-/* page wrapper */
-.hp-page {
-  min-height:100vh;
-  padding:24px 24px 40px;
-}
+# ============================================
+# TRENDING HOMES
+# ============================================
+st.subheader("🔥 Trending homes near you")
 
-/* header bar */
-.hp-header-inner {
-  max-width:1120px;
-  margin:0 auto 16px;
-  padding:16px 20px;
-  background:var(--card);
-  border-radius:999px;
-  display:flex;
-  align-items:center;
-  gap:20px;
-  box-shadow:0 8px 24px rgba(13,55,87,0.08);
-}
+home_data = [
+    {
+        "price": "$289,000",
+        "beds": "3 bd | 2 ba | 1,900 sq ft",
+        "city": "Detroit, MI",
+        "score": 78,
+        "est_value": "$310,000",
+        "growth": "+5.4%",
+        "img": "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7"
+    },
+    {
+        "price": "$420,000",
+        "beds": "4 bd | 2 ba | 2,300 sq ft",
+        "city": "Grand Rapids, MI",
+        "score": 82,
+        "est_value": "$440,000",
+        "growth": "+6.1%",
+        "img": "https://images.unsplash.com/photo-1572120360610-d971b9d7767c"
+    },
+    {
+        "price": "$365,000",
+        "beds": "3 bd | 2 ba | 1,850 sq ft",
+        "city": "Chicago, IL",
+        "score": 80,
+        "est_value": "$390,000",
+        "growth": "+4.2%",
+        "img": "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd"
+    },
+]
 
-.hp-logo {
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
+cols = st.columns(3)
+for col, house in zip(cols, home_data):
+    with col:
+        st.image(house["img"], use_column_width=True)
+        st.markdown(f"### {house['price']}")
+        st.write(house["beds"])
+        st.caption(house["city"])
 
-.hp-logo-icon {
-  width:40px;
-  height:40px;
-  border-radius:12px;
-  background:var(--primary);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#fff;
-  font-weight:700;
-}
+        st.write(f"**HomePathAI Score:** {house['score']}")
+        st.write(f"**Est. value:** {house['est_value']}")
+        st.write(f"**5-yr growth:** {house['growth']}")
 
-.hp-logo-text {
-  font-weight:700;
-  font-size:18px;
-}
+        st.button("Constrain this deal", key=house["price"])
 
-/* tabs */
-.hp-top-tabs {
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-}
+st.write("---")
 
-.hp-top-tabs button {
-  border:0;
-  border-radius:999px;
-  padding:8px 14px;
-  background:#e0f3f8;
-  color:var(--text-main);
-  font-size:13px;
-  cursor:pointer;
-}
+# ============================================
+# INTERACTIVE HEATMAP (REAL MAP)
+# ============================================
+st.subheader("🗺️ Neighborhood snapshot")
 
-.hp-top-tabs button.is-active {
-  background:var(--primary);
-  color:#fff;
-}
+lat_center = 42.3314
+lon_center = -83.0458
 
-/* hero card */
-.hp-hero {
-  max-width:1120px;
-  margin:0 auto 20px;
-  background:var(--card);
-  border-radius:20px;
-  padding:20px 24px;
-  box-shadow:0 18px 40px rgba(9,33,62,0.08);
-}
+heat_df = pd.DataFrame({
+    "lat": np.random.normal(lat_center, 0.02, 300),
+    "lon": np.random.normal(lon_center, 0.02, 300),
+})
 
-.hp-hero-title {
-  font-size:20px;
-  margin:0 0 4px;
-}
+st.map(heat_df, zoom=10)
+st.caption("Safety, price, and walkability at a glance — demo heatmap.")
 
-.hp-hero-sub {
-  margin:0 0 18px;
-  font-size:13px;
-  color:var(--text-sub);
-}
+st.write("---")
 
-/* search bar */
-.hp-search-container {
-  max-width:1120px;
-  margin:0 auto 20px;
-  background:var(--card);
-  border-radius:16px;
-  padding:16px 18px;
-  box-shadow:0 18px 40px rgba(9,33,62,0.06);
-}
+# ============================================
+# REPAIR ESTIMATOR PREVIEW
+# ============================================
+st.subheader("🛠️ Repair estimator preview")
+st.write("Upload home photos and instantly estimate AI repair costs (demo).")
 
-.hp-search-box {
-  display:flex;
-  gap:10px;
-}
+st.image(
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
+    caption="Sample property"
+)
 
-.hp-search-input {
-  flex:1;
-  padding:10px 14px;
-  border-radius:999px;
-  border:1px solid #d4e2ec;
-  font-size:14px;
-}
+st.write("---")
 
-.hp-search-btn {
-  border-radius:999px;
-  border:0;
-  padding:10px 22px;
-  background:var(--primary);
-  color:#fff;
-  cursor:pointer;
-  font-weight:600;
-}
-
-/* trending */
-.hp-section {
-  max-width:1120px;
-  margin:0 auto 32px;
-}
-
-.hp-section-header {
-  display:flex;
-  align-items:center;
-  gap:6px;
-  font-size:16px;
-  margin-bottom:12px;
-}
-
-.hp-section-header span.emoji {
-  font-size:18px;
-}
-
-.hp-trending-grid {
-  display:grid;
-  grid-template-columns: minmax(0,1.15fr) minmax(0,1fr);
-  gap:18px;
-}
-
-/* map & cards */
-.hp-map-card,
-.hp-home-card {
-  background:var(--card);
-  border-radius:18px;
-  overflow:hidden;
-  box-shadow:0 18px 40px rgba(9,33,62,0.10);
-}
-
-.hp-map-img,
-.hp-home-img {
-  display:block;
-  width:100%;
-  height:220px;
-  object-fit:cover;
-}
-
-.hp-home-body {
-  padding:16px 18px 18px;
-}
-
-.hp-home-price {
-  margin:0 0 4px;
-  font-size:20px;
-}
-
-.hp-home-details {
-  margin:0 0 10px;
-  font-size:13px;
-  color:var(--text-sub);
-}
-
-.hp-home-metrics {
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px 20px;
-  font-size:13px;
-  margin-bottom:14px;
-}
-
-.hp-metric-label {
-  display:block;
-  color:var(--text-sub);
-  font-size:11px;
-  text-transform:uppercase;
-  letter-spacing:0.04em;
-}
-
-.hp-metric-value {
-  font-weight:600;
-  color:var(--text-main);
-}
-
-.hp-metric-positive {
-  color:#169c4b;
-}
-
-.hp-const-btn {
-  border:0;
-  border-radius:999px;
-  padding:8px 16px;
-  background:var(--primary-dark);
-  color:#fff;
-  font-size:13px;
-  font-weight:600;
-  cursor:pointer;
-}
-</style>
-</head>
-<body>
-  <div class="hp-page">
-    <!-- HEADER -->
-    <header class="hp-header">
-      <div class="hp-header-inner">
-        <div class="hp-logo">
-          <div class="hp-logo-icon">AI</div>
-          <div>
-            <div class="hp-logo-text">HomePathAI</div>
-            <div style="font-size:12px;color:#5f7d95;">A.I. that thinks like a local.</div>
-          </div>
-        </div>
-        <nav class="hp-top-tabs">
-          <button class="is-active">First time buyer friendly</button>
-          <button>Investor deal analysis</button>
-          <button>Neighbor insights</button>
-          <button>Repair estimator</button>
-          <button>Rent &amp; moving</button>
-          <button>Rent &amp; moving tools</button>
-        </nav>
-      </div>
-    </header>
-
-    <!-- HERO -->
-    <section class="hp-hero">
-      <h1 class="hp-hero-title">Find your next home with AI that actually thinks like a local.</h1>
-      <p class="hp-hero-sub">
-        HomePathAI analyzes neighborhoods, repairs, and numbers so you don’t have to guess.
-      </p>
-    </section>
-
-    <!-- SEARCH -->
-    <section class="hp-search-container">
-      <div class="hp-search-box">
-        <input class="hp-search-input" type="text" placeholder="Search city, neighborhood, or ZIP" />
-        <button class="hp-search-btn">Search</button>
-      </div>
-      <p style="margin:8px 4px 0;font-size:12px;color:#5f7d95;">
-        Your AI-powered home search companion for smarter buying.
-      </p>
-    </section>
-
-    <!-- TRENDING -->
-    <section class="hp-section">
-      <div class="hp-section-header">
-        <span class="emoji">🔥</span>
-        <span>Trending homes near you</span>
-      </div>
-
-      <div class="hp-trending-grid">
-        <!-- LEFT: heatmap -->
-        <article class="hp-map-card">
-          <img
-            class="hp-map-img"
-            src="https://i.ibb.co/ct3gmL6/heatmap-demo.png"
-            alt="Neighborhood heatmap"
-          />
-          <div class="hp-home-body">
-            <h3 style="margin:0 0 8px;font-size:16px;">Neighborhood snapshot</h3>
-            <div style="display:flex;gap:20px;font-size:13px;">
-              <div>
-                <span class="hp-metric-label">Safety score</span>
-                <span class="hp-metric-value">78</span>
-              </div>
-              <div>
-                <span class="hp-metric-label">Median home price</span>
-                <span class="hp-metric-value">$340,000</span>
-              </div>
-            </div>
-          </div>
-        </article>
-
-        <!-- RIGHT: featured home -->
-        <article class="hp-home-card">
-          <img
-            class="hp-home-img"
-            src="https://i.ibb.co/9Y7Q653/house-night.jpg"
-            alt="Featured home"
-          />
-          <div class="hp-home-body">
-            <h3 class="hp-home-price">$579,900</h3>
-            <p class="hp-home-details">
-              4 bd | 3 ba | 2,580 sq ft<br/>
-              Downtown, Detroit, MI
-            </p>
-            <div class="hp-home-metrics">
-              <div>
-                <span class="hp-metric-label">Nete score</span>
-                <span class="hp-metric-value">88</span>
-              </div>
-              <div>
-                <span class="hp-metric-label">Est. value</span>
-                <span class="hp-metric-value">$340,000</span>
-              </div>
-              <div>
-                <span class="hp-metric-label">5-yr growth</span>
-                <span class="hp-metric-value hp-metric-positive">+5.2%</span>
-              </div>
-            </div>
-            <button class="hp-const-btn">Constrain this deal</button>
-          </div>
-        </article>
-      </div>
-    </section>
-  </div>
-</body>
-</html>
-"""
-
-components.html(html, height=950, scrolling=True)
 

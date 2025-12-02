@@ -564,7 +564,153 @@ html = """
       padding-inline: 16px;
     }
   }
-  </style>
+ /* ===== HOMEPAGE: HERO, SEARCH, TRENDING GRID, MAP & HOME CARD ===== */
+
+.hp-homepage {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 24px 0 60px;
+}
+
+/* Hero title */
+.hp-hero-title {
+    font-size: 34px;
+    font-weight: 700;
+    color: #123047;
+    margin-bottom: 12px;
+}
+
+/* Search bar box */
+.hp-search-container {
+    background: #ffffff;
+    padding: 22px;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(10, 35, 52, 0.08);
+    margin-bottom: 32px;
+}
+
+.hp-search-box {
+    display: flex;
+    gap: 12px;
+}
+
+.hp-search-input {
+    flex: 1;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid #ccd1df;
+    font-size: 16px;
+}
+
+.hp-search-btn {
+    background: #0b7899;
+    border: none;
+    color: #fff;
+    padding: 14px 26px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Trending homes + map layout */
+.hp-section-header {
+    font-size: 20px;
+    font-weight: 700;
+    color: #123047;
+    margin: 10px 0 18px;
+}
+
+.hp-trending-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+/* Left: Map Card */
+.hp-map-card {
+    background: #fff;
+    padding: 18px;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(10, 35, 52, 0.08);
+}
+
+.hp-map-img {
+    width: 100%;
+    border-radius: 12px;
+    margin-bottom: 12px;
+}
+
+.hp-map-info h3 {
+    font-size: 18px;
+    margin-bottom: 6px;
+}
+
+.hp-metric {
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+/* Right: Home card */
+.hp-home-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(10, 35, 52, 0.08);
+    overflow: hidden;
+}
+
+.hp-home-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.hp-home-body {
+    padding: 18px 14px;
+}
+
+.hp-home-price {
+    font-size: 22px;
+    font-weight: 700;
+    color: #123047;
+    margin-bottom: 6px;
+}
+
+.hp-home-details {
+    font-size: 14px;
+    color: #52677b;
+    margin-bottom: 12px;
+}
+
+.hp-home-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.hp-metric-label {
+    font-weight: 600;
+}
+
+.hp-metric-value {
+    margin-left: 6px;
+}
+
+.hp-positive {
+    color: #169c4b;
+    font-weight: 600;
+}
+
+.hp-const-btn {
+    margin-top: 14px;
+    border: none;
+    background: #0b7899;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+}
+ </style>
 </head>
 <body>
   <div class="hp-page">
@@ -650,420 +796,89 @@ html = """
             <button class="hp-primary-btn">Ask our AI assistant</button>
           </div>
         </div>
-      </section>
+<!-- HOMEPAGE (NEW) -->
+<section class="hp-homepage">
 
-      <!-- INVESTOR DEAL ANALYSIS TAB -->
-      <section id="tab-investor" class="hp-tab-panel">
-        <div class="hp-card hp-panel-card">
-          <h1 class="hp-page-title">Investor deal analysis</h1>
-          <p class="hp-page-subtitle">
-            Quickly understand cash flow, returns, and risk on any deal.
-          </p>
+    <!-- Top search section -->
+    <div class="hp-search-container">
+        <h1 class="hp-hero-title">Find your next home with AI that actually thinks like a local.</h1>
 
-          <div class="hp-grid-2">
-            <div class="hp-investor-card">
-              <h2>Deal snapshot</h2>
-              <p class="hp-muted">
-                Enter a sample deal below to see projected returns.
-              </p>
-              <div class="hp-form-grid">
-                <div class="hp-form-group">
-                  <label>Purchase price</label>
-                  <input type="text" placeholder="$250,000" />
-                </div>
-                <div class="hp-form-group">
-                  <label>Estimated rent</label>
-                  <input type="text" placeholder="$2,100 / mo" />
-                </div>
-                <div class="hp-form-group">
-                  <label>Down payment</label>
-                  <input type="text" placeholder="20%" />
-                </div>
-                <div class="hp-form-group">
-                  <label>Interest rate</label>
-                  <input type="text" placeholder="6.5%" />
-                </div>
-              </div>
-              <button class="hp-primary-btn hp-btn-inline">
-                Run quick analysis
-              </button>
-            </div>
-
-            <div class="hp-investor-card">
-              <h2>Projected returns</h2>
-              <ul class="hp-metrics-list">
-                <li>
-                  <span>Monthly cash flow</span>
-                  <strong>$380</strong>
-                </li>
-                <li>
-                  <span>Cash-on-cash return</span>
-                  <strong>9.4%</strong>
-                </li>
-                <li>
-                  <span>Cap rate</span>
-                  <strong>7.1%</strong>
-                </li>
-                <li>
-                  <span>5-year equity built</span>
-                  <strong>$52,000</strong>
-                </li>
-              </ul>
-              <p class="hp-muted">
-                Numbers shown are sample outputs only for demo purposes.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- NEIGHBORHOOD / COMPARE CITIES TAB -->
-      <section id="tab-neighborhood" class="hp-tab-panel">
-        <div class="hp-card hp-panel-card">
-          <div class="hp-panel-header-row">
-            <h1 class="hp-page-title">Compare Cities</h1>
-            <div class="hp-logo-small">HomePathAI</div>
-          </div>
-          <p class="hp-page-subtitle">
-            Understanding key differences before you invest or move.
-          </p>
-
-          <div class="hp-compare-controls">
-            <div class="hp-form-group">
-              <label>Select a city</label>
-              <select>
-                <option>Detroit, MI</option>
-                <option>Grand Rapids, MI</option>
-                <option>Chicago, IL</option>
-                <option>Cleveland, OH</option>
-              </select>
-            </div>
-            <div class="hp-form-group">
-              <label>Compare with</label>
-              <select>
-                <option>Pittsburgh, PA</option>
-                <option>Columbus, OH</option>
-                <option>Indianapolis, IN</option>
-              </select>
-            </div>
-            <button class="hp-primary-btn hp-btn-compare">Compare</button>
-          </div>
-
-          <div class="hp-grid-3 hp-compare-cards">
-            <div class="hp-stat-card">
-              <div class="hp-stat-icon">💲</div>
-              <h2>Cost of living</h2>
-              <p class="hp-stat-main">8%</p>
-              <p class="hp-muted">above average</p>
-            </div>
-
-            <div class="hp-stat-card">
-              <div class="hp-stat-icon">🛡️</div>
-              <h2>Crime rate</h2>
-              <p class="hp-stat-main">High</p>
-              <p class="hp-muted">vs national average</p>
-            </div>
-
-            <div class="hp-stat-card">
-              <div class="hp-stat-icon">🏫</div>
-              <h2>Schools</h2>
-              <p class="hp-stat-main">6.4</p>
-              <p class="hp-muted">average rating</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- REPAIR ESTIMATOR TAB -->
-      <section id="tab-repair" class="hp-tab-panel">
-        <div class="hp-card hp-panel-card">
-          <div class="hp-panel-header-row">
-            <div class="hp-logo-left">
-              <div class="hp-logo-icon">
-                <span class="hp-logo-house">A</span>
-              </div>
-              <span class="hp-logo-text">HomePathAI</span>
-            </div>
-            <div class="hp-panel-links">
-              <a href="#">View comps</a>
-              <a href="#">Explore funding options</a>
-            </div>
-          </div>
-
-          <h1 class="hp-page-title">Repair estimator</h1>
-
-          <div class="hp-repair-header">
-            <div class="hp-form-group">
-              <label>Address</label>
-              <div class="hp-readonly-input">
-                123 Main St, Detroit, MI · Single-family
-              </div>
-            </div>
-            <div class="hp-form-group">
-              <label>Total square footage</label>
-              <input type="text" value="1,800" />
-            </div>
-          </div>
-
-          <div class="hp-grid-2 hp-repair-body">
-            <div>
-              <p class="hp-repair-amount">$51,800</p>
-              <p class="hp-muted">
-                Based on analysis of similar homes
-              </p>
-
-              <h2 class="hp-section-title">Repair costs breakdown</h2>
-              <table class="hp-table">
-                <thead>
-                  <tr>
-                    <th>Item</th>
-                    <th>Estimated cost</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr><td>Roof</td><td>$9,500</td></tr>
-                  <tr><td>HVAC</td><td>$7,800</td></tr>
-                  <tr><td>Kitchen</td><td>$15,000</td></tr>
-                  <tr><td>Bathrooms</td><td>$8,500</td></tr>
-                  <tr><td>Interior paint</td><td>$3,500</td></tr>
-                  <tr><td>Landscaping</td><td>$5,500</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div>
-              <h2 class="hp-section-title">Comparable homes</h2>
-              <ul class="hp-comps-list">
-                <li>
-                  <div>
-                    <strong>456 Maple Rd</strong><br />
-                    Detroit, MI
-                  </div>
-                  <div class="hp-comp-meta">
-                    <span>$240,000</span>
-                    <span>1,750 sq ft</span>
-                  </div>
-                </li>
-                <li>
-                  <div>
-                    <strong>28 Grand Ave</strong><br />
-                    Detroit, MI
-                  </div>
-                  <div class="hp-comp-meta">
-                    <span>$265,000</span>
-                    <span>1,900 sq ft</span>
-                  </div>
-                </li>
-                <li>
-                  <div>
-                    <strong>788 Elmwood Dr</strong><br />
-                    Detroit, MI
-                  </div>
-                  <div class="hp-comp-meta">
-                    <span>$230,000</span>
-                    <span>1,850 sq ft</span>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- RENT & MOVING TAB -->
-      <section id="tab-rent" class="hp-tab-panel">
-        <div class="hp-card hp-panel-card">
-          <div class="hp-panel-header-row">
-            <div class="hp-logo-left">
-              <div class="hp-logo-icon">
-                <span class="hp-logo-house">A</span>
-              </div>
-              <span class="hp-logo-text">Rent &amp; Moving</span>
-            </div>
-          </div>
-
-          <div class="hp-rent-top">
-            <div class="hp-rent-search">
-              <h2>Rent Listings</h2>
-              <p class="hp-muted">
-                Browse rentals from MLS feeds that meet your budget
-              </p>
-
-              <div class="hp-form-grid hp-form-grid-3">
-                <div class="hp-form-group">
-                  <label>City or ZIP</label>
-                  <input type="text" value="Detroit, MI" />
-                </div>
-                <div class="hp-form-group">
-                  <label>Budget</label>
-                  <input type="text" value="$1,800" />
-                </div>
-                <div class="hp-form-group hp-form-group-button">
-                  <label>&nbsp;</label>
-                  <button class="hp-primary-btn hp-full-width">
-                    Search
-                  </button>
-                </div>
-              </div>
-
-              <div class="hp-form-grid hp-form-grid-2">
-                <div class="hp-form-group">
-                  <label>Beds</label>
-                  <select>
-                    <option>Any</option>
-                    <option>1+</option>
-                    <option>2+</option>
-                    <option>3+</option>
-                  </select>
-                </div>
-                <div class="hp-form-group">
-                  <label>Bath</label>
-                  <select>
-                    <option>Any</option>
-                    <option>1+</option>
-                    <option>2+</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <aside class="hp-rent-side">
-              <h3>Moving Hub: <span>Funding</span></h3>
-              <p class="hp-muted">
-                Explore funding options, rental deposits, and moving grants
-                available in your area.
-              </p>
-            </aside>
-          </div>
+        <div class="hp-search-box">
+            <input type="text" placeholder="Search city, neighborhood, or ZIP" class="hp-search-input" />
+            <button class="hp-search-btn">Search</button>
         </div>
 
-        <div class="hp-card hp-panel-card hp-rent-budget-card">
-          <h2 class="hp-section-title with-icon">
-            <span class="hp-house-icon">🏠</span>
-            Rent Budget Helper
-          </h2>
+        <p class="hp-subtext">Your AI-powered home search companion for smarter buying</p>
+    </div>
 
-          <div class="hp-grid-2 hp-rent-cards">
-            <div class="hp-rent-card">
-              <div class="hp-rent-image"></div>
-              <div class="hp-rent-body">
-                <p class="hp-rent-price">$1,600/mo</p>
-                <p class="hp-muted">Studio, 1 bath · Detroit, MI</p>
-                <p class="hp-rent-label">Rent only</p>
-              </div>
+
+    <!-- Trending homes + map layout -->
+    <h2 class="hp-section-header">🔥 Trending homes near you</h2>
+
+    <div class="hp-trending-grid">
+
+        <!-- LEFT: Heatmap card -->
+        <div class="hp-map-card">
+            <img src="https://i.ibb.co/6tq3mL6/heatmap-demo.png" class="hp-map-img" />
+            <div class="hp-map-info">
+                <h3>Neighborhood snapshot</h3>
+                <p class="hp-metric"><b>78</b> Safety score</p>
+                <p class="hp-metric">Median home price <b>$340,000</b></p>
             </div>
+        </div>
 
-            <div class="hp-rent-card">
-              <div class="hp-rent-image hp-rent-image-house"></div>
-              <div class="hp-rent-body">
-                <p class="hp-rent-price">$1,750/mo</p>
-                <p class="hp-muted">
-                  3 bd | 1,450 sq ft · Dearborn, MI
+        <!-- RIGHT: Home card preview -->
+        <div class="hp-home-card">
+            <img src="https://i.ibb.co/9V7pG5J/house-night.jpg" class="hp-home-img" />
+            <div class="hp-home-body">
+
+                <h3 class="hp-home-price">$579,900</h3>
+                <p class="hp-home-details">
+                    4 bd | 3 ba | 2,580 sq ft <br />
+                    Downtown, Detroit, MI
                 </p>
-                <p class="hp-rent-label">$750/mo after house-hack</p>
-              </div>
+
+                <div class="hp-home-metrics">
+                    <div>
+                        <span class="hp-metric-label">Nete score</span>
+                        <span class="hp-metric-value">$340,000</span>
+                    </div>
+                    <div>
+                        <span class="hp-metric-label">Growth</span>
+                        <span class="hp-metric-value hp-positive">+5.2%</span>
+                    </div>
+                </div>
+
+                <button class="hp-const-btn">Constrain</button>
+
             </div>
-          </div>
         </div>
-      </section>
 
-      <!-- RENT & MOVING TOOLS TAB -->
-      <section id="tab-renttools" class="hp-tab-panel">
-        <div class="hp-card hp-panel-card">
-          <h1 class="hp-page-title">Rent &amp; moving tools</h1>
-          <p class="hp-page-subtitle">
-            Quick calculators and helpers for renters and people relocating.
-          </p>
+    </div>
 
-          <div class="hp-grid-3 hp-renttools-grid">
-            <div class="hp-feature-card hp-feature-card-tight">
-              <div class="hp-feature-icon-block">📍</div>
-              <div class="hp-feature-text">
-                <h2>Best areas for renters</h2>
-                <p>Find renter-friendly neighborhoods by budget.</p>
-              </div>
-            </div>
-
-            <div class="hp-feature-card hp-feature-card-tight">
-              <div class="hp-feature-icon-block">📦</div>
-              <div class="hp-feature-text">
-                <h2>Moving cost estimator</h2>
-                <p>Get a rough estimate of moving expenses.</p>
-              </div>
-            </div>
-
-            <div class="hp-feature-card hp-feature-card-tight">
-              <div class="hp-feature-icon-block">⚖️</div>
-              <div class="hp-feature-text">
-                <h2>Rent vs. buy helper</h2>
-                <p>Compare long-term costs of renting vs buying.</p>
-              </div>
-            </div>
-
-            <div class="hp-feature-card hp-feature-card-tight">
-              <div class="hp-feature-icon-block">🤝</div>
-              <div class="hp-feature-text">
-                <h2>Roommate matcher (demo)</h2>
-                <p>See how AI could match you with compatible roommates.</p>
-              </div>
-            </div>
-
-            <div class="hp-feature-card hp-feature-card-tight">
-              <div class="hp-feature-icon-block">🔐</div>
-              <div class="hp-feature-text">
-                <h2>Deposit planner</h2>
-                <p>Plan for deposits, fees, and move-in costs.</p>
-              </div>
-            </div>
-
-            <div class="hp-feature-card hp-feature-card-tight">
-              <div class="hp-feature-icon-block">🗺️</div>
-              <div class="hp-feature-text">
-                <h2>Relocation checklist</h2>
-                <p>Stay organized through your move.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <script>
-  document.addEventListener("DOMContentLoaded", function () {
+</section>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
     const buttons = document.querySelectorAll(".hp-tab-button");
     const panels = {
-      buyer: document.getElementById("tab-buyer"),
-      investor: document.getElementById("tab-investor"),
-      neighborhood: document.getElementById("tab-neighborhood"),
-      repair: document.getElementById("tab-repair"),
-      rent: document.getElementById("tab-rent"),
-      renttools: document.getElementById("tab-renttools"),
+        buyer: document.getElementById("tab-buyer"),
+        investor: document.getElementById("tab-investor"),
+        neighborhood: document.getElementById("tab-neighborhood"),
+        repair: document.getElementById("tab-repair"),
+        rent: document.getElementById("tab-rent"),
+        tools: document.getElementById("tab-renttools")
     };
 
     buttons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const target = btn.dataset.tab;
+        btn.addEventListener("click", () => {
+            const target = btn.dataset.tab;
 
-        buttons.forEach((b) => b.classList.remove("is-active"));
-        btn.classList.add("is-active");
+            buttons.forEach(b => b.classList.remove("is-active"));
+            btn.classList.add("is-active");
 
-        Object.values(panels).forEach((p) =>
-          p.classList.remove("is-active")
-        );
-        panels[target].classList.add("is-active");
-      });
+            Object.values(panels).forEach(p => p.classList.remove("is-active"));
+            panels[target].classList.add("is-active");
+        });
     });
-  });
-  </script>
-</body>
-</html>
-"""
-
-components.html(html, height=950, scrolling=True)
-
-
-
-
-
-
+});
+</script>

@@ -902,5 +902,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
+</body>
+</html>
 """
 components.html(html, height=950, scrolling=True)
+

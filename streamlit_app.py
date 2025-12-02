@@ -847,16 +847,36 @@ html = """
                         <span class="hp-metric-label">Growth</span>
                         <span class="hp-metric-value hp-positive">+5.2%</span>
                     </div>
-                </div>
+                <!-- TAB PANELS -->
+<div id="tab-buyer" class="hp-tab-panel is-active">
+    <h2>First-time buyer friendly</h2>
+    <p>AI resources & beginner-friendly tips</p>
+</div>
 
-                <button class="hp-const-btn">Constrain</button>
+<div id="tab-investor" class="hp-tab-panel">
+    <h2>Investor deal analysis</h2>
+    <p>Cash-on-cash, cap rate, ROI calculations coming here.</p>
+</div>
 
-            </div>
-        </div>
+<div id="tab-neighborhood" class="hp-tab-panel">
+    <h2>Neighborhood insights</h2>
+    <p>Heatmap, schools, crime, walkability, lifestyle scores.</p>
+</div>
 
-    </div>
+<div id="tab-repair" class="hp-tab-panel">
+    <h2>Repair estimator</h2>
+    <p>Upload home photos to get instant AI repair costs.</p>
+</div>
 
-</section>
+<div id="tab-rent" class="hp-tab-panel">
+    <h2>Rent & moving</h2>
+    <p>Everything you need for moving cost estimates & tools.</p>
+</div>
+
+<div id="tab-renttools" class="hp-tab-panel">
+    <h2>Moving tools</h2>
+    <p>Truck rentals, packing calculators, checklists, more.</p>
+</div>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const buttons = document.querySelectorAll(".hp-tab-button");

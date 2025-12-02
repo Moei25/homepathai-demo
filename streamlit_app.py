@@ -882,3 +882,5 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
+"""
+components.html(html, height=950, scrolling=True)

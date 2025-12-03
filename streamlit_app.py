@@ -186,63 +186,37 @@ def render_header_and_nav():
 # HOME DASHBOARD (Hero + Heatmap + Listing Card)
 # -----------------------------------------------------------
 
+
 def render_home_dashboard():
 
-    # ---------------- HERO SECTION ----------------
-    
-    <div class="hp-card" style="margin-top: 10px;">
-        <div style="
-            padding: 22px 26px;
-            background: linear-gradient(135deg, #0086b3, #00aeca, #0A9A5A);
-            border-radius: 16px;
-            color: white;
-        ">
-            <h1 style="font-size: 34px; font-weight: 700; margin: 0 0 6px 0;">
-                Smart search for your next home — powered by AI.
-            </h1>
+    # -------------- HERO SECTION --------------
 
-            <p style="opacity: 0.95; font-size: 19px; margin: 0 0 16px 0;">
-                Neighborhood insights, investor-grade numbers, repair tools, 
-                moving resources, and first-time buyer help —
-                all in one experience built for real people.
+    # Phase 1 - Listing Card Placeholder
+    st.subheader("Phase 1 - Listing Card (Placeholder)")
+    st.markdown(
+        """
+        <div style="
+            background:white;
+            padding:20px;
+            border-radius:16px;
+            box-shadow:0 4px 10px rgba(0,0,0,0.08);
+        ">
+            <p style="font-size:15px; color:#687280;">
+                Phase 1 placeholder — Listing card AI will generate here.
+                This space will later show:
             </p>
 
-            <div style="margin-top: 8px; display:flex; gap:10px;">
-                <input placeholder="Search city, neighborhood, or ZIP"
-                    style="
-                        flex: 1;
-                        padding: 14px;
-                        border-radius: 10px;
-                        border: 1px solid #e5e7eb;
-                        font-size: 15px;
-                    "
-                />
-
-                <button
-                    style="
-                        padding: 14px 26px;
-                        border-radius: 10px;
-                        border: none;
-                        background: #00837A;
-                        color: white;
-                        font-weight: 600;
-                        font-size: 15px;
-                        cursor: pointer;
-                    "
-                >
-                    Search
-                </button>
-            </div>
-
-            <div style="margin-top: 10px; font-size: 12px; opacity: 0.95;">
-                Your AI-powered home search companion for smarter buying.
-            </div>
+            <ul style="color:#687280; font-size:14px;">
+                <li>AI-generated property scores</li>
+                <li>AI-estimated repair/upgrade costs</li>
+                <li>AI-estimated ARV (after repair value)</li>
+                <li>Neighborhood insight metrics</li>
+            </ul>
         </div>
-    </div>
-    """
-
-    st.markdown(hero_html, unsafe_allow_html=True)
-    st.write("")
+        """,
+        unsafe_allow_html=True,
+    )
+   
 
     # ---------------- SECTION TITLE ----------------
     st.markdown("### 🔥 Trending homes near you")

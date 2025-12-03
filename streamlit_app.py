@@ -2,22 +2,23 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 
-# ======================================================
+# ==============================================================
 # PAGE CONFIG
-# ======================================================
+# ==============================================================
 st.set_page_config(
     page_title="HomePathAI Demo",
-    page_icon="🏠",
+    page_icon="🏡",
     layout="wide"
 )
 
-# ======================================================
-# SIDEBAR NAVIGATION (Matches your app structure)
-# ======================================================
+# ==============================================================
+# SIDEBAR NAVIGATION
+# ==============================================================
 st.sidebar.title("HomePathAI")
 st.sidebar.caption("AI assistant for buyers, renters, investors & agents.")
-st.sidebar.write("---")
-st.sidebar.markdown("### 🌐 Navigation")
+
+st.sidebar.write("___")
+st.sidebar.markdown("### 🧭 Navigation")
 
 st.sidebar.button("Buyer Hub")
 st.sidebar.button("Investor Hub")
@@ -27,24 +28,24 @@ st.sidebar.button("Repair Estimator")
 st.sidebar.button("Agent Hub")
 st.sidebar.button("Help / About")
 
-# ======================================================
-# HERO HEADER (TEAL STYLE — Option D)
-# ======================================================
+# ==============================================================
+# HERO HEADER (Teal Style – Option D)
+# ==============================================================
 st.markdown(
     """
     <div style="
-        padding: 40px;
-        background: linear-gradient(135deg, #0d9fab, #14c5d9);
+        padding: 40px; 
+        background: linear-gradient(135deg, #0f92ce, #0d9fab, #14c5d9);
         border-radius: 16px;
         color: white;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        box-shadow: 4px 12px rgba(0,0,0,0.15);
     ">
         <h1 style="margin-bottom: 6px; font-size: 42px; font-weight: 700;">
             Smart search for your next home — powered by AI.
         </h1>
 
         <p style="opacity: 0.95; font-size: 20px;">
-            Neighborhood insights, investor-grade numbers, repair tools, moving resources, 
+            Neighborhood insights, investor-grade numbers, repair tools, moving resources,
             and first-time buyer help — all in one experience built for real people.
         </p>
 
@@ -52,83 +53,54 @@ st.markdown(
         <div style="margin-top: 20px;">
             <span style="
                 padding:10px 18px; 
-                background:#15c3d6; 
-                border-radius:20px; 
+                background:#15d2e9; 
+                border-radius:12px; 
                 margin-right:10px;
             ">First-time buyer friendly</span>
 
             <span style="
                 padding:10px 18px; 
-                background:#15c3d6; 
-                border-radius:20px; 
+                background:#15d2e9; 
+                border-radius:12px; 
                 margin-right:10px;
             ">Investor deal analysis</span>
 
             <span style="
                 padding:10px 18px; 
-                background:#15c3d6; 
-                border-radius:20px; 
+                background:#15d2e9; 
+                border-radius:12px; 
                 margin-right:10px;
             ">Neighborhood insights</span>
 
             <span style="
                 padding:10px 18px; 
-                background:#15c3d6; 
-                border-radius:20px; 
+                background:#15d2e9; 
+                border-radius:12px; 
                 margin-right:10px;
             ">Repair estimator</span>
 
             <span style="
                 padding:10px 18px; 
-                background:#15c3d6; 
-                border-radius:20px; 
+                background:#15d2e9; 
+                border-radius:12px; 
                 margin-right:10px;
             ">Rent & moving tools</span>
-        </div>
-
-        <!-- SEARCH BAR -->
-        <div style="margin-top: 28px;">
-            <input 
-                placeholder="Search neighborhoods, cities, or tools…" 
-                style="
-                    width: 60%; 
-                    padding: 14px 20px; 
-                    border-radius: 10px; 
-                    border: none; 
-                    font-size: 16px;
-                "
-            />
-
-            <button style="
-                padding: 14px 20px; 
-                background:#046c75; 
-                border:none; 
-                border-radius:10px; 
-                margin-left:10px; 
-                color:white;
-                font-size: 15px;
-            ">
-                Search
-            </button>
         </div>
     </div>
     """,
     unsafe_allow_html=True
 )
 
-# ======================================================
-# SPACING AFTER HERO SECTION
-# ======================================================
+# ==============================================================
+# SPACING AFTER HERO
+# ==============================================================
 st.write("")
 st.write("")
 
-
-# ======================================================
-# DEMO SECTIONS (PLACEHOLDERS)
-# You can later expand these into real features
-# ======================================================
-
-st.subheader("🏠 Recommended Tools")
+# ==============================================================
+# DEMO SECTIONS
+# ==============================================================
+st.subheader("✨ Recommended Tools")
 st.write("Use the navigation on the left to explore buyer tools, investor calculators, and neighborhood insights.")
 
 st.subheader("📊 Quick Market Insight (Demo Data)")
@@ -139,6 +111,7 @@ demo_df = pd.DataFrame({
 })
 
 st.dataframe(demo_df, use_container_width=True)
+
 
 
 

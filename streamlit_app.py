@@ -182,27 +182,33 @@ def render_header_and_nav():
 # ------------------------------------------------------
 # HOME DASHBOARD (hero + heatmap + listing card)
 # ------------------------------------------------------
+# -----------------------------------------------------------
+# HOME DASHBOARD (Hero + Heatmap + Listing Card)
+# -----------------------------------------------------------
+
 def render_home_dashboard():
-    # Hero card HTML
-    hero_html = '''
+
+    # ---------------- HERO SECTION ----------------
+    
     <div class="hp-card" style="margin-top: 10px;">
         <div style="
-            padding: 20px 28px 24px 28px;
-            background: linear-gradient(135deg, #0086b3, #00aeca, #14c5d9);
+            padding: 22px 26px;
+            background: linear-gradient(135deg, #0086b3, #00aeca, #0A9A5A);
             border-radius: 16px;
             color: white;
         ">
-            <h1 style="font-size: 32px; font-weight: 700; margin: 0 0 8px 0;">
+            <h1 style="font-size: 34px; font-weight: 700; margin: 0 0 6px 0;">
                 Smart search for your next home — powered by AI.
             </h1>
-            <p style="opacity: 0.95; font-size: 19px; margin: 0 0 18px 0;">
-                Neighborhood insights, investor-grade numbers, repair tools, moving resources,
-                and first-time buyer help – all in one experience built for real people.
+
+            <p style="opacity: 0.95; font-size: 19px; margin: 0 0 16px 0;">
+                Neighborhood insights, investor-grade numbers, repair tools, 
+                moving resources, and first-time buyer help —
+                all in one experience built for real people.
             </p>
 
-            <div style="margin-top: 4px; display:flex; gap:10px;">
-                <input
-                    placeholder="Search city, neighborhood, or ZIP"
+            <div style="margin-top: 8px; display:flex; gap:10px;">
+                <input placeholder="Search city, neighborhood, or ZIP"
                     style="
                         flex: 1;
                         padding: 14px;
@@ -228,49 +234,40 @@ def render_home_dashboard():
                 </button>
             </div>
 
-            <div style="margin-top: 10px; font-size: 12px; opacity: 0.9;">
+            <div style="margin-top: 10px; font-size: 12px; opacity: 0.95;">
                 Your AI-powered home search companion for smarter buying.
             </div>
         </div>
     </div>
-    '''
-    st.markdown(hero_html, unsafe_allow_html=True)
+    """
 
-    # Section title
+    st.markdown(hero_html, unsafe_allow_html=True)
     st.write("")
+
+    # ---------------- SECTION TITLE ----------------
     st.markdown("### 🔥 Trending homes near you")
     st.write("Sample homes across Detroit and nearby areas — demo data only.")
+    st.write("")
 
-    # Layout: left (heatmap) / right (listing card)
-    left, right = st.columns([1.3, 1])
+    # ---------------- HEATMAP ----------------
+    left, right = st.columns([1.2, 1])
 
-    # ---------------- LEFT: HEATMAP ----------------
     with left:
-        st.markdown(
-            """
-            <div class="hp-section-title">Neighborhood snapshot</div>
-            <div class="hp-section-subtitle">
-                Safety, price, and walkability at a glance – demo heatmap.
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        st.subheader("Neighborhood snapshot")
+        st.caption("Safety, price, and walkability at a glance — demo map.")
 
-        # Demo data roughly around Detroit
-        df = pd.DataFrame(
-            {
-                "lat": np.random.uniform(42.28, 42.42, 250),
-                "lon": np.random.uniform(-83.5, -83.0, 250),
-                "value": np.random.uniform(0, 1, 250),
-            }
-        )
+        df = pd.DataFrame({
+            "lat": np.random.uniform(42.28, 42.42, 250),
+            "lon": np.random.uniform(-83.5, -83.0, 250),
+            "value": np.random.uniform(0, 1, 250)
+        })
 
         layer = pdk.Layer(
             "HeatmapLayer",
             df,
-            get_position=["lon", "lat"],
+            get_position='[lon, lat]',
             opacity=0.9,
-            threshold=0.2,
+            threshold=0.2
         )
 
         deck = pdk.Deck(
@@ -279,81 +276,41 @@ def render_home_dashboard():
                 latitude=42.33,
                 longitude=-83.1,
                 zoom=9,
-                pitch=40,
-            ),
+                pitch=40
+            )
         )
 
         st.pydeck_chart(deck)
 
-    # ---------------- RIGHT: LISTING CARD ----------------
+    # ---------------- LISTING CARD ----------------
     with right:
-        listing_html = '''
-        <div class="hp-card" style="margin-top: 24px;">
-            <img
-                src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1200"
-                style="width: 100%; border-radius: 15px; margin-bottom: 15px;"
-            />
-
-            <div style="font-size: 22px; font-weight: 700; margin-bottom: 4px;">
-                $579,900
-            </div>
-            <div style="color:#6B7280; font-size: 13px; margin-bottom: 4px;">
-                4 bd | 3 ba | 2,580 sq ft
-            </div>
-            <div style="color:#0A9A5A; margin-bottom: 16px; font-size: 13px;">
-                Downtown, Detroit, MI
-            </div>
-
-            <!-- SCORE ROW -->
-            <div style="display:flex; justify-content:space-between; margin-bottom: 10px;">
-                <div>
-                    <div class="hp-metric-label" style="text-transform:uppercase; font-size:12px; color:#0A9A5A;">
-                        HomePathAI score
-                    </div>
-                    <div class="hp-metric-value" style="font-size:20px;">88</div>
-                </div>
-
-                <div>
-                    <div class="hp-metric-label" style="text-transform:uppercase; font-size:12px; color:#0A9A5A;">
-                        Est. value
-                    </div>
-                    <div class="hp-metric-value" style="font-size:20px;">$340,000</div>
-                </div>
-
-                <div>
-                    <div class="hp-metric-label" style="text-transform:uppercase; font-size:12px; color:#0A9A5A;">
-                        5-yr growth
-                    </div>
-                    <div class="hp-metric-value" style="font-size:20px; color:#059669;">+5.2%</div>
-                </div>
-            </div>
-
-            <button
-                style="
-                    width: 100%;
-                    padding: 14px;
-                    background: #0A95A3;
-                    color: white;
-                    border: none;
-                    border-radius: 10px;
-                    font-size: 16px;
-                    cursor: pointer;
-                "
-            >
-                Constrain this deal
-            </button>
+        st.subheader("Phase 1 · Listing Card (Placeholder)")
+    st.markdown(
+        """
+        <div style="
+            background:white;
+            padding:20px;
+            border-radius:16px;
+            box-shadow:0 4px 10px rgba(0,0,0,0.08);
+            ">
+            <p style="font-size:15px; color:#687280;">
+                Phase 1 placeholder — Listing card AI will generate here.
+                This space will later show:
+            </p>
+            <ul style="color:#687280; font-size:14px;">
+                <li>AI-generated property scores</li>
+                <li>AI-estimated repair/upgrade costs</li>
+                <li>AI-estimated ARV (after repair value)</li>
+                <li>Neighborhood insight metrics</li>
+            </ul>
         </div>
-        '''
-        st.markdown(listing_html, unsafe_allow_html=True)
-
-    st.write("")
-    st.caption(
-        "This is a visual demo for HomePathAI – colors, map, layout, and card match the investor concept."
+        """,
+        unsafe_allow_html=True
     )
+      
+     
+    st.caption("This is a visual demo for HomePathAI — colors, map, layout, and card match the investor concept.")
 
-
-# ------------------------------------------------------
-# FIRST-TIME BUYER PAGE
 # ------------------------------------------------------
 def render_first_time_buyer():
     st.markdown(

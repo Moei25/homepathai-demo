@@ -1,23 +1,15 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 
-# ================================================================
-# PAGE CONFIG
-# ================================================================
 st.set_page_config(
     page_title="HomePathAI Demo",
     page_icon="🏠",
-    layout="wide",
+    layout="wide"
 )
 
-# ================================================================
-# SIDEBAR NAVIGATION
-# ================================================================
+# ---------------- Sidebar ----------------
 st.sidebar.title("HomePathAI")
 st.sidebar.caption("AI assistant for buyers, renters, investors & agents.")
-st.sidebar.write("")
-
 st.sidebar.markdown("### 🧭 Navigation")
 
 st.sidebar.button("Buyer Hub")
@@ -28,10 +20,7 @@ st.sidebar.button("Repair Estimator")
 st.sidebar.button("Agent Hub")
 st.sidebar.button("Help / About")
 
-# ================================================================
-# HERO HEADER (Final Clean Version)
-# ================================================================
-
+# ---------------- HERO SECTION ----------------
 hero_html = """
 <div style="
     padding: 40px;
@@ -49,7 +38,6 @@ hero_html = """
         and first-time buyer help — all in one experience built for real people.
     </p>
 
-    <!-- TAG PILL ROW -->
     <div style="margin-top: 20px;">
 
         <span style="padding:10px 18px; background:#15d2e9; border-radius:12px; margin-right:10px;">
@@ -76,29 +64,24 @@ hero_html = """
 </div>
 """
 
-st.markdown(hero_html, unsafe_allow_html=True)
+st.html(hero_html)  # ← THIS forces proper rendering every time
 
-# ================================================================
-# SPACING
-# ================================================================
+# ---------------- SPACING ----------------
 st.write("")
 st.write("")
 
-# ================================================================
-# DEMO SECTIONS
-# ================================================================
+# ---------------- DEMO SECTIONS ----------------
 st.subheader("🛠 Recommended Tools")
 st.write("Use the navigation on the left to explore buyer tools, investor calculators, and neighborhood insights.")
 
 st.subheader("📊 Quick Market Insight (Demo Data)")
-
 demo_df = pd.DataFrame({
     "City": ["Detroit", "Grand Rapids", "Ann Arbor"],
     "Avg Price": [185000, 320000, 450000],
     "YoY Change": ["+7.4%", "+5.1%", "+6.8%"]
 })
-
 st.dataframe(demo_df, use_container_width=True)
+
 
 
 

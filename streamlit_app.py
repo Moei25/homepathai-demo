@@ -4,12 +4,72 @@ import numpy as np
 import pydeck as pdk
 
 # ---------------------------------------------------
-# PAGE SETUP
+# PAGE CONFIG + THEME FIX
 # ---------------------------------------------------
 st.set_page_config(page_title="HomePathAI Demo", layout="wide")
 
+# GLOBAL THEME CSS
+st.markdown("""
+<style>
+
+body {
+    background-color: #F7F9FB;
+    font-family: 'Inter', sans-serif;
+}
+
+/* NAVIGATION BAR */
+.navbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.navbtn {
+    padding: 12px 18px;
+    border-radius: 8px;
+    border: none;
+    background: #0A395A22;
+    color: #0A395A;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.navbtn:hover {
+    background: #0A395A33;
+}
+
+.active {
+    background: #0A395A !important;
+    color: white !important;
+}
+
+/* CARD STYLE */
+.card {
+    background: white;
+    padding: 26px;
+    border-radius: 14px;
+    box-shadow: 0px 4px 14px rgba(0,0,0,0.08);
+    margin-bottom: 25px;
+}
+
+/* HEADINGS */
+h2, h3 {
+    color: #0A395A;
+    font-weight: 700;
+}
+
+/* METRICS */
+.metric {
+    font-size: 34px;
+    font-weight: 700;
+    color: #0A395A;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # ---------------------------------------------------
-# TOP NAVIGATION PILLS (CLICKABLE)
+# NAVIGATION HANDLER
 # ---------------------------------------------------
 PAGES = [
     "Buyer Hub",
@@ -19,104 +79,97 @@ PAGES = [
     "Rent & Moving"
 ]
 
-st.markdown("""
-<style>
-.navbar {
-    display:flex;
-    gap:10px;
-    margin-bottom:25px;
-}
-.navbtn {
-    padding:12px 18px;
-    background:#0A395A15;
-    border-radius:8px;
-    border:none;
-    font-size:14px;
-    color:#0A395A;
-    cursor:pointer;
-    font-weight:600;
-}
-.navbtn:hover {
-    background:#0A395A22;
-}
-.active {
-    background:#0A395A;
-    color:white !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# Store active page
 if "active_page" not in st.session_state:
     st.session_state.active_page = "Buyer Hub"
 
+# NAV BAR RENDER
 st.markdown("<div class='navbar'>", unsafe_allow_html=True)
-
 for p in PAGES:
     css = "navbtn active" if p == st.session_state.active_page else "navbtn"
-    if st.button(p, key=p, help=p, use_container_width=False):
+    if st.button(p, key=p):
         st.session_state.active_page = p
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------------------------------
-# PAGE RENDER FUNCTIONS
+# PAGE DEFINITIONS
 # ---------------------------------------------------
 
-# ---------- BUYER HUB ----------
 def page_buyer():
-    st.image("https://i.imgur.com/hp7bSAS.png", width=60)
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
     st.markdown("## First-time buyer friendly 👋")
-    st.markdown("AI resources & beginner-friendly tips")
+    st.caption("AI resources & beginner-friendly tips")
+    st.markdown("</div>", unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
     with col1:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
         st.markdown("### 📘 First-time buyer basics")
         st.caption("Buying your first home? Start here.")
-        st.write("---")
+        st.markdown("</div>", unsafe_allow_html=True)
     with col2:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
         st.markdown("### 📝 Step-by-step guides")
         st.caption("Understand each phase of buying.")
-        st.write("---")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    col3, col4 = st.columns(2)
-    with col3:
+    c3, c4 = st.columns(2)
+    with c3:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
         st.markdown("### 🧮 Affordability calculator")
         st.caption("See what you can comfortably afford.")
-    with col4:
+        st.markdown("</div>", unsafe_allow_html=True)
+    with c4:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
         st.markdown("### 🏦 Mortgage pre-approval")
         st.caption("Get pre-approved for better rates.")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    st.write("")
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
     st.markdown("### Have questions?")
     st.button("Ask our AI assistant")
+    st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------- INVESTOR HUB ----------
+
 def page_investor():
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
     st.markdown("## Compare Cities")
     st.caption("Understanding key differences before you invest or move.")
+    st.markdown("</div>", unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns([2,2,1])
-    col1.selectbox("Select a city", ["Detroit, MI","Chicago, IL","Miami, FL"])
-    col2.selectbox("Compare with", ["Pittsburgh, PA","Cleveland, OH","Dallas, TX"])
+    col1.selectbox("Select a city", ["Detroit, MI", "Chicago, IL", "Miami, FL"])
+    col2.selectbox("Compare with", ["Pittsburgh, PA", "Cleveland, OH", "Dallas, TX"])
     col3.button("Compare")
 
-    st.write("---")
+    st.write("")
 
     c1, c2, c3 = st.columns(3)
     with c1:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
         st.markdown("### 💵 Cost of living")
-        st.metric("", "8%", "above avg")
-    with c2:
-        st.markdown("### 🛡 Crime rate")
-        st.metric("", "High")
-    with c3:
-        st.markdown("### 🏫 Schools")
-        st.metric("", "6.4", "avg rating")
+        st.markdown("<div class='metric'>8%</div>", unsafe_allow_html=True)
+        st.caption("Above average")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------- NEIGHBORHOOD INSIGHTS ----------
+    with c2:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.markdown("### 🛡 Crime rate")
+        st.markdown("<div class='metric'>High</div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with c3:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.markdown("### 🏫 Schools")
+        st.markdown("<div class='metric'>6.4</div>", unsafe_allow_html=True)
+        st.caption("Average rating")
+        st.markdown("</div>", unsafe_allow_html=True)
+
+
 def page_neighborhood():
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
     st.markdown("## Neighborhood snapshot")
-    st.caption("Safety, price, and walkability at a glance.")
+    st.caption("Safety, price, and walkability at a glance — demo map.")
+    st.markdown("</div>", unsafe_allow_html=True)
 
     df = pd.DataFrame({
         "lat": np.random.uniform(42.28, 42.42, 250),
@@ -144,52 +197,51 @@ def page_neighborhood():
 
     st.pydeck_chart(deck)
 
-# ---------- REPAIR ESTIMATOR ----------
+
 def page_repair():
-    st.image("https://i.imgur.com/hp7bSAS.png", width=55)
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
     st.markdown("## Repair estimator")
+    st.markdown("</div>", unsafe_allow_html=True)
 
-    st.write("### $51,800")
-    st.caption("Based on analysis of similar homes")
-
-    left, right = st.columns(2)
-    with left:
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
         st.markdown("### Repair costs breakdown")
         st.write("""
-        - Roof — **$9,500**  
-        - HVAC — **$7,800**  
-        - Kitchen — **$15,000**  
-        - Bathrooms — **$5,500**  
-        - Interior Paint — **$3,500**  
+        - Roof — **$9,500**
+        - HVAC — **$7,800**
+        - Kitchen — **$15,000**
+        - Bathrooms — **$5,500**
+        - Interior Paint — **$3,500**
         - Landscaping — **$5,500**
         """)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    with right:
+    with col2:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
         st.markdown("### Comparable homes")
         st.write("""
-        - 456 Maple Rd — **$240k**  
-        - 28 Grand Ave — **$265k**  
+        - 456 Maple Rd — **$240k**
+        - 28 Grand Ave — **$265k**
         - 788 Elmwood — **$230k**
         """)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------- RENT & MOVING ----------
+
 def page_rent():
-    st.image("https://i.imgur.com/hp7bSAS.png", width=55)
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
     st.markdown("## Rent Listings")
+    st.markdown("</div>", unsafe_allow_html=True)
 
     c1, c2, c3 = st.columns([2,1,1])
     c1.text_input("City or ZIP", "Detroit, MI")
     c2.text_input("Budget", "$1,800")
     c3.button("Search")
 
-    st.write("---")
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
     st.markdown("### Rent Budget Helper")
+    st.markdown("</div>", unsafe_allow_html=True)
 
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("#### $1,600/mo — Detroit, MI")
-    with col2:
-        st.markdown("#### $1,750/mo — Dearborn, MI")
 
 # ---------------------------------------------------
 # RENDER ACTIVE PAGE

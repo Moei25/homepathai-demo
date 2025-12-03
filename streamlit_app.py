@@ -189,9 +189,8 @@ def render_header_and_nav():
 
 def render_home_dashboard():
 
-    # -------------- HERO SECTION --------------
+    # ------------------  HERO SECTION (Phase 1 Placeholder) ------------------
 
-    # Phase 1 - Listing Card Placeholder
     st.subheader("Phase 1 - Listing Card (Placeholder)")
     st.markdown(
         """
@@ -202,7 +201,7 @@ def render_home_dashboard():
             box-shadow:0 4px 10px rgba(0,0,0,0.08);
         ">
             <p style="font-size:15px; color:#687280;">
-                Phase 1 placeholder — Listing card AI will generate here.
+                Phase 1 placeholder — Listing card AI will generate here.  
                 This space will later show:
             </p>
 
@@ -216,76 +215,7 @@ def render_home_dashboard():
         """,
         unsafe_allow_html=True,
     )
-   
 
-    # ---------------- SECTION TITLE ----------------
-    st.markdown("### 🔥 Trending homes near you")
-    st.write("Sample homes across Detroit and nearby areas — demo data only.")
-    st.write("")
-
-    # ---------------- HEATMAP ----------------
-    left, right = st.columns([1.2, 1])
-
-    with left:
-        st.subheader("Neighborhood snapshot")
-        st.caption("Safety, price, and walkability at a glance — demo map.")
-
-        df = pd.DataFrame({
-            "lat": np.random.uniform(42.28, 42.42, 250),
-            "lon": np.random.uniform(-83.5, -83.0, 250),
-            "value": np.random.uniform(0, 1, 250)
-        })
-
-        layer = pdk.Layer(
-            "HeatmapLayer",
-            df,
-            get_position='[lon, lat]',
-            opacity=0.9,
-            threshold=0.2
-        )
-
-        deck = pdk.Deck(
-            layers=[layer],
-            initial_view_state=pdk.ViewState(
-                latitude=42.33,
-                longitude=-83.1,
-                zoom=9,
-                pitch=40
-            )
-        )
-
-        st.pydeck_chart(deck)
-
-    # ---------------- LISTING CARD ----------------
-    with right:
-        st.subheader("Phase 1 · Listing Card (Placeholder)")
-    st.markdown(
-        """
-        <div style="
-            background:white;
-            padding:20px;
-            border-radius:16px;
-            box-shadow:0 4px 10px rgba(0,0,0,0.08);
-            ">
-            <p style="font-size:15px; color:#687280;">
-                Phase 1 placeholder — Listing card AI will generate here.
-                This space will later show:
-            </p>
-            <ul style="color:#687280; font-size:14px;">
-                <li>AI-generated property scores</li>
-                <li>AI-estimated repair/upgrade costs</li>
-                <li>AI-estimated ARV (after repair value)</li>
-                <li>Neighborhood insight metrics</li>
-            </ul>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-      
-     
-    st.caption("This is a visual demo for HomePathAI — colors, map, layout, and card match the investor concept.")
-
-# ------------------------------------------------------
 def render_first_time_buyer():
     st.markdown(
         """

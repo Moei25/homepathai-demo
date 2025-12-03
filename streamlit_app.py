@@ -3,259 +3,318 @@ import pandas as pd
 import numpy as np
 import pydeck as pdk
 
-# ---------------------------------------------------
-# PAGE CONFIG + THEME FIX
-# ---------------------------------------------------
-st.set_page_config(page_title="HomePathAI Demo", layout="wide")
+# ------------------------#
+#  BASIC CONFIG
+# ------------------------#
+st.set_page_config(
+    page_title="HomePathAI Demo",
+    page_icon="🏠",
+    layout="wide",
+)
 
-# GLOBAL THEME CSS
-st.markdown("""
-<style>
+# Brand colors (approx from your mockups)
+PRIMARY_TEAL = "#00A3A5"
+PRIMARY_DARK = "#003E52"
+LIGHT_BG = "#F5FBFD"
 
-body {
-    background-color: #F7F9FB;
-    font-family: 'Inter', sans-serif;
-}
 
-/* NAVIGATION BAR */
-.navbar {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 30px;
-}
+# ------------------------#
+#  GLOBAL STYLES
+# ------------------------#
+st.markdown(
+    f"""
+    <style>
+        body {{
+            background-color: {LIGHT_BG};
+        }}
 
-.navbtn {
-    padding: 12px 18px;
-    border-radius: 8px;
-    border: none;
-    background: #0A395A22;
-    color: #0A395A;
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-}
+        .hp-topbar {{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            padding:18px 32px 4px 32px;
+        }}
+        .hp-logo {{
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }}
+        .hp-logo-icon {{
+            width:38px;
+            height:38px;
+            border-radius:10px;
+            background: {PRIMARY_TEAL};
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:white;
+            font-weight:800;
+            font-size:20px;
+            box-shadow:0 4px 10px rgba(0,0,0,0.15);
+        }}
+        .hp-logo-text-main {{
+            font-size:26px;
+            font-weight:800;
+            color:{PRIMARY_DARK};
+        }}
+        .hp-logo-text-sub {{
+            font-size:11px;
+            color:#4B6B7A;
+            margin-top:-4px;
+        }}
 
-.navbtn:hover {
-    background: #0A395A33;
-}
+        /* Make the radio buttons look like pills */
+        div[role="radiogroup"] > label {{
+            border-radius:999px;
+            padding:6px 18px;
+            border:1px solid #d0e4ea;
+            background-color:#E3F3F6;
+            color:{PRIMARY_DARK};
+            font-size:13px;
+            font-weight:600;
+            margin-right:6px;
+        }}
+        div[role="radiogroup"] > label[data-checked="true"] {{
+            background-color:{PRIMARY_TEAL} !important;
+            color:white !important;
+            border-color:{PRIMARY_TEAL} !important;
+        }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
-.active {
-    background: #0A395A !important;
-    color: white !important;
-}
+# ------------------------#
+#  TOP BAR + NAV
+# ------------------------#
+top_l, top_r = st.columns([2, 3])
+with top_l:
+    st.markdown(
+        """
+        <div class="hp-topbar">
+          <div class="hp-logo">
+            <div class="hp-logo-icon">AI</div>
+            <div>
+              <div class="hp-logo-text-main">HomePathAI</div>
+              <div class="hp-logo-text-sub">Neighborhood &amp; home insight assistant</div>
+            </div>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+with top_r:
+    st.write("")  # spacing on the right
 
-/* CARD STYLE */
-.card {
-    background: white;
-    padding: 26px;
-    border-radius: 14px;
-    box-shadow: 0px 4px 14px rgba(0,0,0,0.08);
-    margin-bottom: 25px;
-}
-
-/* HEADINGS */
-h2, h3 {
-    color: #0A395A;
-    font-weight: 700;
-}
-
-/* METRICS */
-.metric {
-    font-size: 34px;
-    font-weight: 700;
-    color: #0A395A;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# ---------------------------------------------------
-# NAVIGATION HANDLER
-# ---------------------------------------------------
-PAGES = [
-    "Buyer Hub",
-    "Investor Hub",
-    "Neighborhood Insights",
-    "Repair Estimator",
-    "Rent & Moving"
+TABS = [
+    "First-time buyer friendly",
+    "Investor deal analysis",
+    "Neighbor insights",
+    "Repair estimator",
+    "Rent & moving tools",
 ]
 
-if "active_page" not in st.session_state:
-    st.session_state.active_page = "Buyer Hub"
+active_tab = st.radio(
+    "Navigation",
+    TABS,
+    horizontal=True,
+    label_visibility="collapsed",
+    key="active_tab",
+)
 
-# NAV BAR RENDER
-st.markdown("<div class='navbar'>", unsafe_allow_html=True)
-for p in PAGES:
-    css = "navbtn active" if p == st.session_state.active_page else "navbtn"
-    if st.button(p, key=p):
-        st.session_state.active_page = p
-st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------------------------------------------------
-# PAGE DEFINITIONS
-# ---------------------------------------------------
-
-def page_buyer():
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
+# ------------------------#
+#  SECTIONS
+# ------------------------#
+def first_time_buyer_section():
     st.markdown("## First-time buyer friendly 👋")
     st.caption("AI resources & beginner-friendly tips")
-    st.markdown("</div>", unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
+
     with col1:
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("### 📘 First-time buyer basics")
-        st.caption("Buying your first home? Start here.")
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown(
+            """
+            ### 🧠 First-time buyer basics  
+            Buying your first home? Start here.
+
+            • What you can really afford  
+            • Down payment options  
+            • Closing costs explained  
+            """,
+        )
+        st.markdown(
+            """
+            ### 🧮 Affordability calculator  
+            See what you can comfortably afford.
+            """,
+        )
+
     with col2:
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("### 📝 Step-by-step guides")
-        st.caption("Understand each phase of buying.")
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown(
+            """
+            ### 📋 Step-by-step guides  
+            Understand each phase of buying:
 
-    c3, c4 = st.columns(2)
-    with c3:
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("### 🧮 Affordability calculator")
-        st.caption("See what you can comfortably afford.")
-        st.markdown("</div>", unsafe_allow_html=True)
-    with c4:
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("### 🏦 Mortgage pre-approval")
-        st.caption("Get pre-approved for better rates.")
-        st.markdown("</div>", unsafe_allow_html=True)
+            1. Get pre-approved  
+            2. Tour homes  
+            3. Make offers  
+            4. Close smoothly  
+            """,
+        )
+        st.markdown(
+            """
+            ### 🧾 Mortgage pre-approval  
+            Get pre-approved for better rates.
+            """,
+        )
 
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("### Have questions?")
+    st.divider()
+    st.markdown("#### Have questions?")
     st.button("Ask our AI assistant")
-    st.markdown("</div>", unsafe_allow_html=True)
 
 
-def page_investor():
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("## Compare Cities")
-    st.caption("Understanding key differences before you invest or move.")
-    st.markdown("</div>", unsafe_allow_html=True)
+def investor_section():
+    st.markdown("## Investor deal analysis")
+    st.caption("Quick numbers for flips & long-term holds (demo only)")
 
-    col1, col2, col3 = st.columns([2,2,1])
-    col1.selectbox("Select a city", ["Detroit, MI", "Chicago, IL", "Miami, FL"])
-    col2.selectbox("Compare with", ["Pittsburgh, PA", "Cleveland, OH", "Dallas, TX"])
-    col3.button("Compare")
+    cols = st.columns(3)
+    with cols[0]:
+        st.metric("Target ROI", "18%", "+3.2% vs market")
+    with cols[1]:
+        st.metric("Cash-on-cash", "11.5%", "Demo")
+    with cols[2]:
+        st.metric("Vacancy risk", "Low", "Demo")
 
     st.write("")
+    st.subheader("Sample deal breakdown (demo numbers)")
 
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("### 💵 Cost of living")
-        st.markdown("<div class='metric'>8%</div>", unsafe_allow_html=True)
-        st.caption("Above average")
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    with c2:
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("### 🛡 Crime rate")
-        st.markdown("<div class='metric'>High</div>", unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    with c3:
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("### 🏫 Schools")
-        st.markdown("<div class='metric'>6.4</div>", unsafe_allow_html=True)
-        st.caption("Average rating")
-        st.markdown("</div>", unsafe_allow_html=True)
-
-
-def page_neighborhood():
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("## Neighborhood snapshot")
-    st.caption("Safety, price, and walkability at a glance — demo map.")
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    df = pd.DataFrame({
-        "lat": np.random.uniform(42.28, 42.42, 250),
-        "lon": np.random.uniform(-83.5, -83.0, 250),
-        "value": np.random.uniform(0, 1, 250),
-    })
-
-    layer = pdk.Layer(
-        "HeatmapLayer",
-        df,
-        get_position='[lon, lat]',
-        opacity=0.9,
-        threshold=0.2
+    df = pd.DataFrame(
+        {
+            "Item": ["Purchase price", "Renovation budget", "Holding costs", "Projected ARV"],
+            "Amount ($)": [210_000, 55_000, 12_000, 320_000],
+        }
     )
+    st.table(df)
 
-    deck = pdk.Deck(
-        layers=[layer],
-        initial_view_state=pdk.ViewState(
-            latitude=42.33,
-            longitude=-83.1,
-            zoom=8,
-            pitch=40,
+
+def neighbor_insights_section():
+    st.markdown("## Neighbor insights")
+    st.caption("Understand cost of living, crime, and schools before you move (demo)")
+
+    top, map_row = st.container(), st.container()
+
+    with top:
+        col1, col2 = st.columns([2, 3])
+        with col1:
+            city = st.selectbox("Select a city", ["Detroit, MI", "Grand Rapids, MI", "Ann Arbor, MI"])
+            compare_to = st.selectbox("Compare to", ["Pittsburgh, PA", "Chicago, IL", "Columbus, OH"])
+            st.write(f"Comparing **{city}** vs **{compare_to}** (demo only).")
+
+        with col2:
+            metrics = pd.DataFrame(
+                {
+                    "Metric": ["Cost of living", "Crime rate", "School rating"],
+                    "Value": ["8% above avg", "High", "6.4 / 10"],
+                }
+            )
+            st.table(metrics)
+
+    with map_row:
+        st.subheader("Neighborhood snapshot (demo heatmap)")
+        st.caption("Safety, price, and walkability at a glance – demo map only.")
+
+        # Fake lat/lon points roughly around Detroit for demo
+        df = pd.DataFrame(
+            {
+                "lat": np.random.uniform(42.28, 42.45, 250),
+                "lon": np.random.uniform(-83.3, -82.9, 250),
+                "value": np.random.uniform(0, 1, 250),
+            }
         )
-    )
 
-    st.pydeck_chart(deck)
+        layer = pdk.Layer(
+            "HeatmapLayer",
+            data=df,
+            get_position="[lon, lat]",
+            get_weight="value",
+            radius_pixels=40,
+        )
+
+        view_state = pdk.ViewState(
+            latitude=42.35,
+            longitude=-83.05,
+            zoom=9,
+            pitch=0,
+        )
+
+        deck = pdk.Deck(layers=[layer], initial_view_state=view_state, tooltip={"text": "Demo hotspot"})
+        st.pydeck_chart(deck)
 
 
-def page_repair():
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
+def repair_estimator_section():
     st.markdown("## Repair estimator")
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.caption("Rough repair budget based on similar homes (demo numbers)")
+
+    col1, col2 = st.columns([2, 3])
+    with col1:
+        st.text_input("Address", "123 Main St, Detroit, MI")
+        st.number_input("Square footage", 600, 5000, 1800, step=50)
+
+    with col2:
+        st.metric("Estimated repair budget", "$51,800")
+        st.write("Based on similar homes in your area (demo only).")
+
+    st.write("")
+    st.subheader("Repair cost breakdown (demo)")
+    df = pd.DataFrame(
+        {
+            "Item": ["Roof", "HVAC", "Kitchen", "Bathrooms", "Interior paint", "Landscaping"],
+            "Estimated cost ($)": [9_500, 7_800, 15_000, 10_500, 3_500, 5_500],
+        }
+    )
+    st.table(df)
+
+
+def rent_moving_section():
+    st.markdown("## Rent & moving tools")
+    st.caption("Plan rentals, budgets, and moving day (demo)")
 
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("### Repair costs breakdown")
-        st.write("""
-        - Roof — **$9,500**
-        - HVAC — **$7,800**
-        - Kitchen — **$15,000**
-        - Bathrooms — **$5,500**
-        - Interior Paint — **$3,500**
-        - Landscaping — **$5,500**
-        """)
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("### Rent listings (demo)")
+        st.text_input("City or ZIP", "Detroit, MI")
+        st.number_input("Target rent ($/mo)", 400, 5000, 1800, step=50)
+        st.selectbox("Beds", ["Any", "1+", "2+", "3+"])
+        st.selectbox("Baths", ["Any", "1+", "2+"])
+        st.button("Search rentals (demo)")
 
     with col2:
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("### Comparable homes")
-        st.write("""
-        - 456 Maple Rd — **$240k**
-        - 28 Grand Ave — **$265k**
-        - 788 Elmwood — **$230k**
-        """)
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("### Rent budget helper")
+        listings = pd.DataFrame(
+            {
+                "Address": ["Studio – Downtown", "3bd – Dearborn", "2bd – Ferndale"],
+                "Rent ($/mo)": [1600, 1750, 1500],
+                "Beds": [1, 3, 2],
+            }
+        )
+        st.table(listings)
 
 
-def page_rent():
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("## Rent Listings")
-    st.markdown("</div>", unsafe_allow_html=True)
+# ------------------------#
+#  ROUTE TO SECTION
+# ------------------------#
+if active_tab == "First-time buyer friendly":
+    first_time_buyer_section()
+elif active_tab == "Investor deal analysis":
+    investor_section()
+elif active_tab == "Neighbor insights":
+    neighbor_insights_section()
+elif active_tab == "Repair estimator":
+    repair_estimator_section()
+else:
+    rent_moving_section()
 
-    c1, c2, c3 = st.columns([2,1,1])
-    c1.text_input("City or ZIP", "Detroit, MI")
-    c2.text_input("Budget", "$1,800")
-    c3.button("Search")
-
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("### Rent Budget Helper")
-    st.markdown("</div>", unsafe_allow_html=True)
-
-
-# ---------------------------------------------------
-# RENDER ACTIVE PAGE
-# ---------------------------------------------------
-if st.session_state.active_page == "Buyer Hub":
-    page_buyer()
-elif st.session_state.active_page == "Investor Hub":
-    page_investor()
-elif st.session_state.active_page == "Neighborhood Insights":
-    page_neighborhood()
-elif st.session_state.active_page == "Repair Estimator":
-    page_repair()
-elif st.session_state.active_page == "Rent & Moving":
-    page_rent()
 
 
 

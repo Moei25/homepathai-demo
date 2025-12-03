@@ -1,447 +1,416 @@
 import streamlit as st
 import pandas as pd
 import pydeck as pdk
-import numpy as np
 
-# ---------------------------------------------------------
+# ------------------------------------------------------------
 # PAGE CONFIG
-# ---------------------------------------------------------
+# ------------------------------------------------------------
 st.set_page_config(
     page_title="HomePathAI Demo",
     page_icon="🏠",
     layout="wide",
-    initial_sidebar_state="collapsed",
 )
 
-# ---------------------------------------------------------
-# GLOBAL STYLES (colors & layout to match your screenshot)
-# ---------------------------------------------------------
+# ------------------------------------------------------------
+# GLOBAL CSS (colors + layout to match your screenshot)
+# ------------------------------------------------------------
 st.markdown(
     """
-    <style>
-    /* Overall page background */
-    .stApp {
-        background-color: #f4fafb;
-    }
+<style>
+/* Make background light grey like the mockup */
+[data-testid="stAppViewContainer"] {
+    background-color: #f4f7f9;
+}
 
-    /* Remove default top padding */
-    .block-container {
-        padding-top: 1.5rem;
-        padding-bottom: 3rem;
-        max-width: 1200px;
-    }
+/* Center the main content and give it breathing room */
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+    max-width: 1200px;
+}
 
-    /* Hero wrapper */
-    .hero-wrapper {
-        margin: 0 auto 1.75rem auto;
-    }
+/* Logo row */
+.hp-header-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+}
 
-    .hero-card {
-        background: white;
-        border-radius: 18px;
-        padding: 24px 28px 26px 28px;
-        box-shadow: 0 16px 50px rgba(15, 57, 78, 0.15);
-        border: 1px solid #e1f1f5;
-    }
+.hp-logo-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #007f9f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 16px;
+    font-family: system-ui, sans-serif;
+}
 
-    .logo-row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 18px;
-    }
+.hp-logo-text {
+    font-size: 24px;
+    font-weight: 700;
+    color: #064457;
+    font-family: system-ui, sans-serif;
+}
 
-    .logo-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
-        background: #006d77;
-        color: #ffffff;
-        font-weight: 700;
-        font-size: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.18);
-    }
+/* Main hero card */
+.hp-hero-card {
+    background: white;
+    border-radius: 18px;
+    padding: 26px 28px 30px 28px;
+    box-shadow: 0 10px 28px rgba(15, 68, 88, 0.18);
+    position: relative;
+    overflow: hidden;
+}
 
-    .logo-text {
-        font-size: 24px;
-        font-weight: 700;
-        color: #0f3447;
-    }
+/* Teal gradient bar behind content */
+.hp-hero-banner {
+    background: linear-gradient(135deg, #0f92ce, #0d8fab, #14c5d9);
+    border-radius: 18px;
+    padding: 26px 28px 30px 28px;
+    color: white;
+}
 
-    /* Top nav pill buttons (visual only) */
-    .nav-pill-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-bottom: 18px;
-    }
+/* Top nav pills row */
+.hp-nav-pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
 
-    .nav-pill {
-        padding: 10px 18px;
-        border-radius: 999px;
-        border: none;
-        background-color: #008a96;
-        color: #ffffff;
-        font-size: 13px;
-        cursor: default;
-        white-space: nowrap;
-        font-weight: 500;
-        box-shadow: 0 6px 16px rgba(0, 90, 102, 0.25);
-    }
+.hp-nav-pill {
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: none;
+    background: rgba(255, 255, 255, 0.16);
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+}
 
-    /* Search bar row */
-    .search-row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 6px;
-    }
+/* Main hero title */
+.hp-hero-title {
+    font-size: 26px;
+    font-weight: 700;
+    margin: 6px 0 4px 0;
+}
 
-    .search-input {
-        flex: 1;
-        border-radius: 999px;
-        border: 1px solid #d6e7ec;
-        padding: 12px 18px;
-        font-size: 15px;
-        outline: none;
-    }
+/* Hero tagline (white on teal) */
+.hp-hero-tagline {
+    font-size: 13px;
+    opacity: 0.95;
+    max-width: 580px;
+}
 
-    .search-input::placeholder {
-        color: #95a4b1;
-    }
+/* Search row */
+.hp-search-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 18px;
+}
 
-    .search-button {
-        border-radius: 999px;
-        background-color: #008a96;
-        color: white;
-        border: none;
-        padding: 11px 26px;
-        font-size: 15px;
-        font-weight: 600;
-        cursor: pointer;
-        box-shadow: 0 6px 18px rgba(0, 90, 102, 0.35);
-    }
+.hp-search-input {
+    flex: 1;
+    padding: 11px 14px;
+    border-radius: 999px;
+    border: none;
+    font-size: 14px;
+    outline: none;
+}
 
-    .search-tagline {
-        font-size: 12px;
-        color: #70808e;
-        margin-top: 2px;
-    }
+.hp-search-btn {
+    padding: 11px 26px;
+    border-radius: 999px;
+    border: none;
+    background: #008bb6;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+}
 
-    /* Section title */
-    .section-heading {
-        font-size: 20px;
-        font-weight: 700;
-        color: #113d4d;
-        margin-top: 10px;
-        margin-bottom: 12px;
-    }
+/* Small helper text under search */
+.hp-search-caption {
+    margin-top: 10px;
+    font-size: 12px;
+    opacity: 0.95;
+}
 
-    .section-subtitle {
-        font-size: 12px;
-        color: #7b8b96;
-        margin-bottom: 10px;
-    }
+/* Section titles */
+.hp-section-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 26px;
+    margin-bottom: 4px;
+}
 
-    /* Trending layout */
-    .trending-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
-        gap: 18px;
-        align-items: stretch;
-    }
+.hp-section-caption {
+    font-size: 12px;
+    color: #56616a;
+    margin-bottom: 10px;
+}
 
-    /* Left card (heatmap) */
-    .heatmap-card {
-        background: white;
-        border-radius: 18px;
-        padding: 14px 14px 10px 14px;
-        border: 1px solid #e1f1f5;
-        box-shadow: 0 10px 30px rgba(23, 66, 88, 0.07);
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
+/* Trending homes container */
+.hp-trending-card {
+    background: white;
+    border-radius: 18px;
+    padding: 18px 18px 20px 18px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.06);
+}
 
-    .heatmap-title-row {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-bottom: 2px;
-    }
+/* Listing card on the right */
+.hp-listing-card {
+    background: #f7fafc;
+    border-radius: 18px;
+    overflow: hidden;
+    font-family: system-ui, sans-serif;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.10);
+}
 
-    .heatmap-chip {
-        font-size: 11px;
-        color: #7b8b96;
-    }
+.hp-listing-image {
+    width: 100%;
+    height: 190px;
+    object-fit: cover;
+    display: block;
+}
 
-    .heatmap-title {
-        font-size: 16px;
-        font-weight: 700;
-        color: #113d4d;
-        margin-top: 4px;
-        margin-bottom: 4px;
-    }
+.hp-listing-body {
+    padding: 14px 16px 18px 16px;
+}
 
-    .heatmap-meta {
-        font-size: 11px;
-        color: #7b8b96;
-    }
+.hp-listing-price {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
 
-    /* Right listing card */
-    .listing-card {
-        background: white;
-        border-radius: 18px;
-        border: 1px solid #e1f1f5;
-        box-shadow: 0 10px 30px rgba(23, 66, 88, 0.07);
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
+.hp-listing-meta {
+    font-size: 12px;
+    color: #56616a;
+    margin-bottom: 3px;
+}
 
-    .listing-image {
-        width: 100%;
-        height: 190px;
-        object-fit: cover;
-    }
+.hp-listing-city {
+    font-size: 12px;
+    color: #7b8794;
+    margin-bottom: 10px;
+}
 
-    .listing-body {
-        padding: 16px 18px 18px 18px;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
+/* Score rows */
+.hp-pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+}
 
-    .listing-price {
-        font-size: 22px;
-        font-weight: 700;
-        color: #113d4d;
-    }
+.hp-score-pill {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: white;
+    min-width: 110px;
+}
 
-    .listing-meta {
-        font-size: 12px;
-        color: #70808e;
-    }
+.hp-score-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #7b8794;
+    margin-bottom: 2px;
+}
 
-    .listing-city {
-        font-size: 12px;
-        color: #7b8b96;
-        margin-bottom: 6px;
-    }
+.hp-score-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0b7285;
+}
 
-    .listing-pill-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 6px;
-        margin-bottom: 2px;
-        font-size: 11px;
-        color: #7b8b96;
-    }
+/* Growth pill (green) */
+.hp-score-growth {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0c8a4b;
+}
 
-    .listing-score-label {
-        text-transform: uppercase;
-        letter-spacing: 0.09em;
-        font-size: 10px;
-        color: #7b8b96;
-    }
+/* Constrain button */
+.hp-constrain-btn {
+    margin-top: 12px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    border: none;
+    background: #008bb6;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
 
-    .listing-score-value {
-        font-weight: 700;
-        color: #113d4d;
-        font-size: 13px;
-    }
-
-    .listing-growth {
-        font-weight: 700;
-        color: #039672;
-        font-size: 14px;
-    }
-
-    .constrain-btn {
-        margin-top: 10px;
-        display: inline-flex;
-        padding: 7px 16px;
-        border-radius: 999px;
-        border: none;
-        background: #0d7f94;
-        color: #ffffff;
-        font-size: 12px;
-        font-weight: 600;
-        cursor: pointer;
-    }
-
-    /* Make embedded elements full width inside Streamlit columns */
-    .full-width {
-        width: 100%;
-    }
-
-    @media (max-width: 900px) {
-        .trending-grid {
-            grid-template-columns: minmax(0, 1fr);
-        }
-    }
-    </style>
-    """,
+</style>
+""",
     unsafe_allow_html=True,
 )
 
-# ---------------------------------------------------------
-# HERO HEADER (matches Screenshot A style)
-# ---------------------------------------------------------
+# ------------------------------------------------------------
+# HERO HEADER BLOCK (matches screenshot layout + colors)
+# ------------------------------------------------------------
 hero_html = """
-<div class="hero-wrapper">
-  <div class="hero-card">
-    <div class="logo-row">
-      <div class="logo-icon">AI</div>
-      <div class="logo-text">HomePathAI</div>
+<div class="hp-header-row">
+  <div class="hp-logo-circle">AI</div>
+  <div class="hp-logo-text">HomePathAI</div>
+</div>
+
+<div class="hp-hero-card">
+  <div class="hp-hero-banner">
+
+    <div class="hp-nav-pill-row">
+      <button class="hp-nav-pill">First time buyer friendly</button>
+      <button class="hp-nav-pill">Investor deal analysis</button>
+      <button class="hp-nav-pill">Neighbor insights</button>
+      <button class="hp-nav-pill">Repair estimator</button>
+      <button class="hp-nav-pill">Rent &amp; moving tools</button>
     </div>
 
-    <div class="nav-pill-row">
-      <button class="nav-pill">First time buyer friendly</button>
-      <button class="nav-pill">Investor deal analysis</button>
-      <button class="nav-pill">Neighbor insights</button>
-      <button class="nav-pill">Repair estimator</button>
-      <button class="nav-pill">Rent & moving tools</button>
+    <div class="hp-hero-title">
+      Smart search for your next home — powered by AI.
     </div>
 
-    <div style="font-size: 28px; font-weight: 700; color:#113d4d; margin-bottom: 4px;">
-      Find your next home with AI that actually thinks like a local.
+    <div class="hp-hero-tagline">
+      Neighborhood insights, investor-grade numbers, repair tools, moving resources,
+      and first-time buyer help — all in one experience built for real people.
     </div>
 
-    <div style="font-size: 13px; color:#70808e; margin-bottom: 14px;">
-      Neighborhood insights, investor-grade numbers, repair tools, and moving resources —
-      all in one experience built for real people.
+    <div class="hp-search-row">
+      <input class="hp-search-input" placeholder="Search city, neighborhood, or ZIP" />
+      <button class="hp-search-btn">Search</button>
     </div>
 
-    <div class="search-row">
-      <input class="search-input" placeholder="Search city, neighborhood, or ZIP" />
-      <button class="search-button">Search</button>
-    </div>
-
-    <div class="search-tagline">
+    <div class="hp-search-caption">
       Your AI-powered home search companion for smarter buying.
     </div>
+
   </div>
 </div>
 """
 
 st.markdown(hero_html, unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# "Trending homes near you" SECTION
-# ---------------------------------------------------------
-st.markdown('<div class="section-heading">🔥 Trending homes near you</div>', unsafe_allow_html=True)
-
+# ------------------------------------------------------------
+# TRENDING HOMES SECTION – TITLE & CAPTION
+# ------------------------------------------------------------
+st.markdown('<div class="hp-section-title">🔥 Trending homes near you</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="section-subtitle">Sample homes across Detroit and nearby areas – demo data only.</div>',
+    '<div class="hp-section-caption">Sample homes across Detroit and nearby areas – demo data only.</div>',
     unsafe_allow_html=True,
 )
 
-# Create container for map + listing card
-st.markdown('<div class="trending-grid">', unsafe_allow_html=True)
+# ------------------------------------------------------------
+# TRENDING HOMES LAYOUT: LEFT = MAP, RIGHT = LISTING CARD
+# ------------------------------------------------------------
+left_col, right_col = st.columns([1.15, 0.85])
 
-# ----------------- LEFT: HEATMAP CARD --------------------
-# We'll use a pydeck heatmap centered roughly near Detroit
-np.random.seed(42)
-num_points = 200
-center_lat, center_lon = 42.3314, -83.0458  # Detroit approx
-
-latitudes = center_lat + 0.25 * (np.random.rand(num_points) - 0.5)
-longitudes = center_lon + 0.35 * (np.random.rand(num_points) - 0.5)
-
-heat_df = pd.DataFrame({"lat": latitudes, "lon": longitudes, "weight": np.random.rand(num_points)})
-
-heatmap_layer = pdk.Layer(
-    "HeatmapLayer",
-    data=heat_df,
-    get_position="[lon, lat]",
-    aggregation="MEAN",
-    get_weight="weight",
-    radiusPixels=40,
-)
-
-view_state = pdk.ViewState(
-    latitude=center_lat,
-    longitude=center_lon,
-    zoom=8.2,
-    pitch=0,
-)
-
-deck = pdk.Deck(layers=[heatmap_layer], initial_view_state=view_state, map_style="light")
-
-left_col, right_col = st.columns((1.1, 1.1))
-
+# ---- LEFT: HEATMAP / NEIGHBORHOOD SNAPSHOT ----
 with left_col:
     st.markdown(
-        """
-        <div class="heatmap-card">
-          <div class="heatmap-title-row">
-            <span class="heatmap-chip">Heetmap</span>
-          </div>
-          <div class="heatmap-title">Neighborhood snapshot</div>
-          <div class="heatmap-meta">Safety score, price, and walkability at a glance – demo map.</div>
-        """,
+        '<div class="hp-trending-card"><div class="hp-section-caption" '
+        'style="margin-bottom:4px;">Neighborhood snapshot</div>'
+        '<div class="hp-section-caption" style="margin-bottom:12px;">'
+        'Safety, price, and walkability at a glance – demo heatmap.'
+        '</div>',
         unsafe_allow_html=True,
+    )
+
+    # Demo points (roughly around Detroit / SE Michigan)
+    map_df = pd.DataFrame(
+        {
+            "lat": [42.3314, 42.38, 42.30, 42.43, 42.28, 42.36, 42.32, 42.35],
+            "lon": [-83.0458, -83.10, -83.06, -83.02, -83.09, -82.99, -83.15, -83.20],
+            "weight": [0.8, 0.5, 0.9, 0.6, 0.4, 0.7, 0.9, 0.3],
+        }
+    )
+
+    heat_layer = pdk.Layer(
+        "HeatmapLayer",
+        data=map_df,
+        get_position="[lon, lat]",
+        get_weight="weight",
+        radius_pixels=60,
+    )
+
+    view_state = pdk.ViewState(
+        latitude=42.3314,
+        longitude=-83.0458,
+        zoom=9,
+        pitch=0,
+    )
+
+    deck = pdk.Deck(
+        layers=[heat_layer],
+        initial_view_state=view_state,
+        map_style="mapbox://styles/mapbox/light-v9",
+        tooltip={"text": "Demo intensity"},
     )
 
     st.pydeck_chart(deck, use_container_width=True)
 
-    st.markdown(
-        """
-          <div class="heatmap-meta" style="margin-top:6px;">
-            Demo data only. In a real version, this would reflect live HomePathAI scores.
-          </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    # Close the white card div started above
+    st.markdown("</div>", unsafe_allow_html=True)
 
-# ----------------- RIGHT: LISTING CARD --------------------
+# ---- RIGHT: LISTING CARD ----
 with right_col:
     listing_html = """
-    <div class="listing-card">
-      <img class="listing-image" src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1200" />
-      <div class="listing-body">
-        <div class="listing-price">$579,900</div>
-        <div class="listing-meta">4 bd | 3 ba | 2,580 sq ft</div>
-        <div class="listing-city">Downtown, Detroit, MI</div>
+    <div class="hp-listing-card">
+      <img class="hp-listing-image"
+           src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1200"
+           alt="Home exterior" />
+      <div class="hp-listing-body">
 
-        <div class="listing-pill-row">
-          <div>
-            <div class="listing-score-label">HomePathAI score</div>
-            <div class="listing-score-value">88</div>
+        <div class="hp-listing-price">$579,900</div>
+        <div class="hp-listing-meta">4 bd | 3 ba | 2,580 sq ft</div>
+        <div class="hp-listing-city">Downtown, Detroit, MI</div>
+
+        <div class="hp-pill-row">
+          <div class="hp-score-pill">
+            <div class="hp-score-label">HomePathAI score</div>
+            <div class="hp-score-value">88</div>
           </div>
-          <div>
-            <div class="listing-score-label">Est. value</div>
-            <div class="listing-score-value">$340,000</div>
+          <div class="hp-score-pill">
+            <div class="hp-score-label">Est. value</div>
+            <div class="hp-score-value">$340,000</div>
           </div>
-          <div>
-            <div class="listing-score-label">5-yr growth</div>
-            <div class="listing-growth">+5.2%</div>
+          <div class="hp-score-pill">
+            <div class="hp-score-label">5-yr growth</div>
+            <div class="hp-score-growth">+5.2%</div>
           </div>
         </div>
 
-        <button class="constrain-btn">Constrain this deal</button>
+        <button class="hp-constrain-btn">Constrain this deal</button>
+
       </div>
     </div>
     """
+
     st.markdown(listing_html, unsafe_allow_html=True)
 
-# Close trending-grid wrapper
-st.markdown("</div>", unsafe_allow_html=True)
-
-# ---------------------------------------------------------
-# Little footer note
-# ---------------------------------------------------------
+# ------------------------------------------------------------
+# FOOTNOTE FOR INVESTORS
+# ------------------------------------------------------------
 st.write("")
 st.caption(
-    "This is a non-functional visual demo for HomePathAI – colors, layout, map, and card match the concept for investors."
+    "This is a non-functional visual demo for HomePathAI – colors, layout, map, and card "
+    "match the concept you can show to investors."
 )
+
 
 
 

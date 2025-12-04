@@ -4,133 +4,118 @@ import numpy as np
 import pydeck as pdk
 
 # -----------------------------------------------------------
-# PAGE CONFIG
+# BASIC CONFIG
 # -----------------------------------------------------------
 st.set_page_config(page_title="HomePathAI", layout="wide")
 
 # -----------------------------------------------------------
-# GLOBAL CSS  (colors & layout close to your screenshot)
+# GLOBAL CSS – COLORS + STYLING TO MATCH YOUR SCREENSHOT
 # -----------------------------------------------------------
 st.markdown(
     """
-    <style>
-    :root {
-        --hp-bg: #F2F6F7;
-        --hp-teal: #0C7682;
-        --hp-teal-dark: #0A5D66;
-        --hp-tag: #0A9456;
-        --hp-gray: #8890A4;
-        --hp-card-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
+<style>
+:root {
+    --hp-bg: #F2F6F7;
+    --hp-teal: #0C7680;
+    --hp-deep-teal: #07525A;
+    --hp-pill: #0C7680;
+    --hp-pill-text: #FFFFFF;
+    --hp-gray-text: #687280;
+}
 
-    body {
-        background-color: var(--hp-bg);
-    }
-    .stApp {
-        background-color: var(--hp-bg);
-    }
+/* Page background */
+[data-testid="stAppViewContainer"] {
+    background-color: var(--hp-bg);
+}
 
-    /* TOP NAV BUTTONS (all st.button at top) */
-    .top-nav .stButton>button {
-        background: var(--hp-teal);
-        color: white;
-        padding: 12px 22px;
-        border-radius: 10px;
-        border: none;
-        font-weight: 600;
-        margin-right: 8px;
-        cursor: pointer;
-    }
-    .top-nav .stButton>button:hover {
-        background: var(--hp-teal-dark);
-    }
+/* Top nav buttons */
+.stButton > button {
+    border-radius: 999px;
+    border: none;
+    padding: 8px 22px;
+    background-color: var(--hp-pill);
+    color: var(--hp-pill-text);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+}
+.stButton > button:hover {
+    filter: brightness(1.05);
+}
 
-    /* HERO BAR */
-    .hp-hero {
-        background: var(--hp-teal);
-        color: white;
-        padding: 32px;
-        border-radius: 14px;
-        margin-top: 10px;
-        box-shadow: var(--hp-card-shadow);
-    }
-    .hp-hero h2 {
-        margin: 0 0 6px 0;
-    }
-    .hp-hero p {
-        margin: 0;
-        opacity: 0.95;
-    }
+/* Hero bar */
+.hp-hero {
+    background: var(--hp-teal);
+    color: white;
+    padding: 32px;
+    border-radius: 14px;
+    margin-top: 18px;
+}
 
-    .hp-hero-input {
-        width: 70%;
-        padding: 14px;
-        border-radius: 10px;
-        border: none;
-        font-size: 16px;
-    }
-    .hp-hero-btn {
-        padding: 14px 26px;
-        background: #07525A;
-        border-radius: 10px;
-        border: none;
-        color: white;
-        font-weight: 700;
-        cursor: pointer;
-    }
+/* Hero input + button */
+.hp-hero-input {
+    width: 70%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    font-size: 16px;
+}
+.hp-hero-btn {
+    padding: 14px 26px;
+    background: var(--hp-deep-teal);
+    border-radius: 10px;
+    border: none;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+}
 
-    /* GENERIC CARD */
-    .hp-card {
-        background: white;
-        border-radius: 16px;
-        padding: 20px;
-        box-shadow: var(--hp-card-shadow);
-        margin-bottom: 20px;
-    }
+/* Generic white card */
+.hp-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
 
-    .hp-label {
-        color: var(--hp-gray);
-        font-size: 14px;
-    }
-    .hp-value {
-        font-weight: 700;
-        font-size: 16px;
-    }
-    .hp-green {
-        color: #0B9D4A;
-    }
+/* Listing card text helpers */
+.hp-label {
+    color: #8890A0;
+    font-size: 14px;
+}
+.hp-value {
+    font-weight: 700;
+    font-size: 16px;
+}
+.hp-green {
+    color: #0B9D4A;
+}
 
-    .hp-tag {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 999px;
-        background: rgba(10,148,86,0.1);
-        color: var(--hp-tag);
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
-    }
+/* Page section header subtitle */
+.hp-section-subtitle {
+    font-size: 13px;
+    color: #8890A0;
+    margin-top: -6px;
+}
 
-    .hp-section-title {
-        margin-top: 24px;
-        margin-bottom: 4px;
-        font-size: 20px;
-        font-weight: 700;
-    }
-    .hp-section-sub {
-        margin: 0 0 12px 0;
-        color: var(--hp-gray);
-        font-size: 13px;
-    }
-
-    </style>
-    """,
+/* Simple tag label used on other pages */
+.hp-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #0C7680;
+    background: #E0F4F7;
+    margin-bottom: 4px;
+}
+</style>
+""",
     unsafe_allow_html=True,
 )
 
 # -----------------------------------------------------------
-# NAV BAR
+# NAV STATE
 # -----------------------------------------------------------
 pages = [
     "Home dashboard",
@@ -141,63 +126,60 @@ pages = [
     "Rent & moving tools",
 ]
 
-if "active" not in st.session_state:
-    st.session_state["active"] = "Home dashboard"
-
-
-def render_nav():
-    st.markdown("### HomePathAI")
-    st.caption("Neighborhood & home insight assistant")
-
-    st.markdown('<div class="top-nav">', unsafe_allow_html=True)
-    cols = st.columns(len(pages))
-    for i, p in enumerate(pages):
-        if cols[i].button(p, key=f"nav-{p}"):
-            st.session_state["active"] = p
-    st.markdown("</div>", unsafe_allow_html=True)
-
+if "page" not in st.session_state:
+    st.session_state["page"] = "Home dashboard"
 
 # -----------------------------------------------------------
-# HOME DASHBOARD (matches screenshot layout)
+# NAV BAR
 # -----------------------------------------------------------
-def page_home():
-    # HERO SECTION
+nav_cols = st.columns(len(pages))
+for i, label in enumerate(pages):
+    with nav_cols[i]:
+        if st.button(label, key=f"nav-{label}"):
+            st.session_state["page"] = label
+
+st.write("")  # tiny spacer
+
+# -----------------------------------------------------------
+# PAGE: HOME DASHBOARD
+# -----------------------------------------------------------
+def page_home_dashboard():
+    # HERO (this is where HTML was showing as text before)
     st.markdown(
         """
         <div class="hp-hero">
-
             <h2>Smart search for your next home — powered by AI.</h2>
             <p>
                 Neighborhood insights, investor-grade numbers, repair tools,
-                and first-time buyer help — all in one place.
+                and first-time buyer help — all in one experience built for real people.
             </p>
 
-            <div style="display:flex; gap:12px; margin-top:18px;">
-                <input class="hp-hero-input" type="text"
-                    placeholder="Search city, neighborhood, or ZIP" />
+            <div style="display:flex; gap:12px; margin-top:16px;">
+                <input class="hp-hero-input" placeholder="Search city, neighborhood, or ZIP" type="text" />
                 <button class="hp-hero-btn">Search</button>
             </div>
 
+            <div style="margin-top:12px; font-size:12px; opacity:0.9;">
+                Your AI-powered home search companion for smarter buying.
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    # SECTION TITLE
-    st.markdown('<p class="hp-section-title">🔥 Trending homes near you</p>', unsafe_allow_html=True)
+    st.markdown("### 🔥 Trending homes near you")
     st.markdown(
-        '<p class="hp-section-sub">Sample homes across Detroit — demo data only.</p>',
+        '<div class="hp-section-subtitle">Sample homes across Detroit — demo data only.</div>',
         unsafe_allow_html=True,
     )
 
-    # MAP + LISTING
     left, right = st.columns([1.3, 1])
 
-    # ------ LEFT: HEATMAP ------
+    # --- Map on the left ---
     with left:
-        st.markdown('<p class="hp-section-title">Neighborhood snapshot</p>', unsafe_allow_html=True)
+        st.markdown("#### Neighborhood snapshot")
         st.markdown(
-            '<p class="hp-section-sub">Safety, price, and walkability at a glance — demo map.</p>',
+            '<div class="hp-section-subtitle">Safety, price, and walkability at a glance — demo map.</div>',
             unsafe_allow_html=True,
         )
 
@@ -214,7 +196,7 @@ def page_home():
             df,
             get_position="[lon, lat]",
             threshold=0.2,
-            opacity=0.8,
+            opacity=0.85,
         )
 
         deck = pdk.Deck(
@@ -226,29 +208,40 @@ def page_home():
                 pitch=40,
             ),
         )
+
         st.pydeck_chart(deck)
 
-    # ------ RIGHT: LISTING CARD ------
+    # --- Listing card on the right ---
     with right:
         st.markdown(
             """
             <div class="hp-card">
-
                 <img src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"
-                     style="width:100%; border-radius:12px; margin-bottom:14px;" />
+                     style="width:100%; border-radius:12px; margin-bottom:12px;" />
 
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:flex-start;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                     <div>
                         <div style="font-size:22px; font-weight:700;">$579,900</div>
                         <div class="hp-label">4 bd | 3 ba | 2,580 sq ft</div>
                         <div class="hp-label">Downtown, Detroit, MI</div>
                     </div>
-                    <button class="hp-hero-btn" style="padding:10px 18px; font-size:14px;">
-                        Constrain this deal
-                    </button>
+                    <div>
+                        <button style="
+                            padding:10px 18px;
+                            background:#0C7680;
+                            color:white;
+                            border:none;
+                            border-radius:999px;
+                            font-size:13px;
+                            font-weight:600;
+                            cursor:pointer;
+                        ">
+                            Constrain this deal
+                        </button>
+                    </div>
                 </div>
 
-                <div style="display:flex; justify-content:space-between; margin-top:12px;">
+                <div style="display:flex; justify-content:space-between; margin-top:14px;">
                     <div>
                         <div class="hp-label">HomePath score</div>
                         <div class="hp-value">88</div>
@@ -262,274 +255,261 @@ def page_home():
                         <div class="hp-value hp-green">+5.2%</div>
                     </div>
                 </div>
-
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-
 # -----------------------------------------------------------
-# FIRST-TIME BUYER PAGE
+# PAGE: FIRST-TIME BUYER
 # -----------------------------------------------------------
-def page_first_time():
-    st.markdown('<p class="hp-section-title">🧭 First-time buyer friendly</p>', unsafe_allow_html=True)
+def page_first_time_buyer():
+    st.markdown("### 🧭 First-time buyer friendly")
     st.markdown(
-        '<p class="hp-section-sub">AI-powered guidance so new buyers do not feel lost.</p>',
+        '<div class="hp-section-subtitle">AI-powered guidance so new buyers do not feel lost.</div>',
         unsafe_allow_html=True,
     )
 
-    col1, col2 = st.columns(2)
+    left, right = st.columns(2)
 
-    with col1:
+    with left:
         st.markdown(
             """
             <div class="hp-card">
-                <span class="hp-tag">Buyer journey</span>
-                <h3>Step-by-step path to your first home</h3>
-                <p class="hp-section-sub">
+                <div class="hp-tag">Buyer journey</div>
+                <h4>Step-by-step path to your first home</h4>
+                <p class="hp-section-subtitle">
                     Clear stages from saving for a down payment to closing day.
-                    Each step can be turned into tasks with reminders.
+                    Each step can become tasks with reminders.
                 </p>
                 <ul>
-                    <li>🧾 Affordability check and budget setup</li>
-                    <li>🏦 Lender pre-approval and rate shopping</li>
-                    <li>🏡 Touring homes with AI deal summaries</li>
-                    <li>🖊️ Offer, inspection, and closing checklist</li>
+                    <li>Affordability check and budget setup</li>
+                    <li>Lender pre-approval and rate shopping</li>
+                    <li>Touring homes with AI deal summaries</li>
+                    <li>Offer, inspection, and closing checklist</li>
                 </ul>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-    with col2:
+    with right:
         st.markdown(
             """
             <div class="hp-card">
-                <span class="hp-tag">AI tools</span>
-                <h3>What HomePathAI will do for first-time buyers</h3>
+                <div class="hp-tag">AI tools</div>
+                <h4>What HomePathAI will do for first-time buyers</h4>
                 <ul>
-                    <li>
-                        <b>Payment coach:</b> translate listing price into
-                        monthly payment with taxes and insurance.
-                    </li>
-                    <li>
-                        <b>Risk radar:</b> flags high taxes, weak schools, or
-                        unusual crime trends in the area.
-                    </li>
-                    <li>
-                        <b>Comparison view:</b> line up up to three homes
-                        side by side with scores for safety, schools,
-                        commute, and long term value.
-                    </li>
+                    <li>Payment coach: translate listing price into monthly payment bands.</li>
+                    <li>Risk radar: flag high taxes, weak schools, or unusual crime trends.</li>
+                    <li>Comparison view: line up three homes side by side with scores.</li>
+                    <li>Co-buyer mode: share a link and vote on favorites together.</li>
                 </ul>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-
 # -----------------------------------------------------------
-# INVESTOR DEAL ANALYSIS PAGE
+# PAGE: INVESTOR DEAL ANALYSIS
 # -----------------------------------------------------------
-def page_investor():
-    st.markdown('<p class="hp-section-title">💼 Investor deal analysis</p>', unsafe_allow_html=True)
+def page_investor_analysis():
+    st.markdown("### 💼 Investor deal analysis")
     st.markdown(
-        '<p class="hp-section-sub">Cap rates, cash-on-cash, and BRRRR-style metrics at a glance.</p>',
+        '<div class="hp-section-subtitle">Quick reads on cash flow, equity, and risk.</div>',
         unsafe_allow_html=True,
     )
 
-    col1, col2 = st.columns([1.2, 1])
+    left, right = st.columns(2)
 
-    with col1:
+    with left:
         st.markdown(
             """
             <div class="hp-card">
-                <span class="hp-tag">Sample deal</span>
-                <h3>Detroit duplex — demo numbers</h3>
-                <table>
-                    <tr><td class="hp-label">Purchase price</td><td class="hp-value">$210,000</td></tr>
-                    <tr><td class="hp-label">Renovation budget</td><td class="hp-value">$40,000</td></tr>
-                    <tr><td class="hp-label">Total all-in</td><td class="hp-value">$250,000</td></tr>
-                    <tr><td class="hp-label">Projected rent</td><td class="hp-value">$2,800 / month</td></tr>
-                    <tr><td class="hp-label">Cap rate (stabilized)</td><td class="hp-value hp-green">8.7%</td></tr>
-                </table>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    with col2:
-        st.markdown(
-            """
-            <div class="hp-card">
-                <span class="hp-tag">Planned features</span>
-                <h3>How investors will use HomePathAI</h3>
+                <div class="hp-tag">Deal snapshot</div>
+                <h4>Cap rate & cash-on-cash at a glance</h4>
                 <ul>
-                    <li>Run instant cap rate and cash-on-cash from a listing link.</li>
-                    <li>Upload rehab numbers and let AI stress test the deal.</li>
-                    <li>Compare multiple zip codes by rent growth and vacancy.</li>
-                    <li>Export clean deal summaries to share with partners or lenders.</li>
+                    <li>Rent comps vs purchase price</li>
+                    <li>Taxes, insurance, utilities, and maintenance baked in</li>
+                    <li>Financing scenarios: cash, 20% down, or house-hack</li>
+                    <li>Break-even vacancy and worst-case stress test</li>
                 </ul>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
+    with right:
+        st.markdown(
+            """
+            <div class="hp-card">
+                <div class="hp-tag">BRRRR / value-add</div>
+                <h4>Flip & BRRRR-style analysis</h4>
+                <ul>
+                    <li>Repair budget bands from photos & checklists</li>
+                    <li>After-repair value estimates using nearby solds</li>
+                    <li>Timeline and carrying-cost calculator</li>
+                    <li>Exit options: flip, refi-and-rent, or sell to another investor</li>
+                </ul>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 # -----------------------------------------------------------
-# NEIGHBOR INSIGHTS PAGE
+# PAGE: NEIGHBOR INSIGHTS
 # -----------------------------------------------------------
-def page_neighbor():
-    st.markdown('<p class="hp-section-title">🏘️ Neighbor insights</p>', unsafe_allow_html=True)
+def page_neighbor_insights():
+    st.markdown("### 🏘️ Neighbor insights")
     st.markdown(
-        '<p class="hp-section-sub">Understand the block, not just the house.</p>',
+        '<div class="hp-section-subtitle">Understand the block, not just the house.</div>',
         unsafe_allow_html=True,
     )
 
-    col1, col2 = st.columns(2)
+    left, right = st.columns(2)
 
-    with col1:
+    with left:
         st.markdown(
             """
             <div class="hp-card">
-                <span class="hp-tag">Quality of life</span>
-                <h3>AI neighborhood snapshot</h3>
+                <div class="hp-tag">Quality of life</div>
+                <h4>AI neighborhood snapshot</h4>
                 <ul>
-                    <li>Safety, school rating, and walkability score.</li>
-                    <li>Commute time to downtown or major job centers.</li>
-                    <li>Nearby grocery, parks, and health care.</li>
+                    <li>Safety, school rating, and walkability score</li>
+                    <li>Commute time to downtown or major job centers</li>
+                    <li>Nearby groceries, parks, and healthcare</li>
+                    <li>Internet, cell coverage, and noise level signals</li>
                 </ul>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-    with col2:
+    with right:
         st.markdown(
             """
             <div class="hp-card">
-                <span class="hp-tag">Trends</span>
-                <h3>Watch how an area is changing</h3>
+                <div class="hp-tag">Trends</div>
+                <h4>Watch how an area is changing</h4>
                 <ul>
-                    <li>Price growth and days-on-market trend.</li>
-                    <li>Rent trend for similar properties.</li>
-                    <li>Renovation activity and permit volume.</li>
+                    <li>Price growth and days-on-market trend</li>
+                    <li>Rent trend for similar properties</li>
+                    <li>Renovation activity and permit volume</li>
+                    <li>New construction and zoning changes nearby</li>
                 </ul>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-
 # -----------------------------------------------------------
-# REPAIR ESTIMATOR PAGE
+# PAGE: REPAIR ESTIMATOR
 # -----------------------------------------------------------
-def page_repair():
-    st.markdown('<p class="hp-section-title">🔧 Repair estimator</p>', unsafe_allow_html=True)
+def page_repair_estimator():
+    st.markdown("### 🔧 Repair estimator")
     st.markdown(
-        '<p class="hp-section-sub">Phase 2 idea — fast rehab ranges from photos and checklists.</p>',
+        '<div class="hp-section-subtitle">Phase 2 idea — fast rehab ranges from photos and checklists.</div>',
         unsafe_allow_html=True,
     )
 
-    col1, col2 = st.columns(2)
+    left, right = st.columns(2)
 
-    with col1:
+    with left:
         st.markdown(
             """
             <div class="hp-card">
-                <span class="hp-tag">Scope of work</span>
-                <h3>Room-by-room estimator</h3>
+                <div class="hp-tag">Scope of work</div>
+                <h4>Room-by-room estimator</h4>
                 <ul>
-                    <li>Kitchen, baths, roof, HVAC, electrical, and more.</li>
-                    <li>Choose light, medium, or heavy update level.</li>
-                    <li>Costs auto-adjust to local labor and material ranges.</li>
+                    <li>Kitchen, baths, roof, HVAC, electrical, and more</li>
+                    <li>Choose light, medium, or heavy update level</li>
+                    <li>Costs auto-adjust to local labor and material ranges</li>
+                    <li>Exports into the investor deal analysis page</li>
                 </ul>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-    with col2:
+    with right:
         st.markdown(
             """
             <div class="hp-card">
-                <span class="hp-tag">Planned AI</span>
-                <h3>Upload photos → get budget bands</h3>
+                <div class="hp-tag">Planned AI</div>
+                <h4>Upload photos → get budget bands</h4>
                 <ul>
-                    <li>Vision model flags dated finishes and big-ticket items.</li>
-                    <li>Generates best-case, likely, and high-risk scenarios.</li>
-                    <li>Exports into the investor deal analysis page.</li>
+                    <li>Vision model flags dated finishes and big-ticket items</li>
+                    <li>Generates best-case, likely, and high-risk scenarios</li>
+                    <li>Highlights surprises: foundation, moisture, or roof issues</li>
                 </ul>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-
 # -----------------------------------------------------------
-# RENT & MOVING TOOLS PAGE
+# PAGE: RENT & MOVING TOOLS
 # -----------------------------------------------------------
-def page_rent():
-    st.markdown('<p class="hp-section-title">🚚 Rent & moving tools</p>', unsafe_allow_html=True)
+def page_rent_and_moving():
+    st.markdown("### 🚚 Rent & moving tools")
     st.markdown(
-        '<p class="hp-section-sub">Help renters decide where to land next and what it will really cost.</p>',
+        '<div class="hp-section-subtitle">Help people compare renting vs buying and plan a move.</div>',
         unsafe_allow_html=True,
     )
 
-    col1, col2 = st.columns(2)
+    left, right = st.columns(2)
 
-    with col1:
+    with left:
         st.markdown(
             """
             <div class="hp-card">
-                <span class="hp-tag">Rent map</span>
-                <h3>Compare rent across neighborhoods</h3>
+                <div class="hp-tag">Rent vs buy</div>
+                <h4>Compare rent vs owning over 3–7 years</h4>
                 <ul>
-                    <li>Heatmap of typical rents by bedroom count.</li>
-                    <li>Filter by commute, school rating, and lifestyle.</li>
-                    <li>See how far your budget goes in each zip code.</li>
+                    <li>Down payment and closing costs vs up-front rent</li>
+                    <li>Principal pay-down and equity build-up</li>
+                    <li>Maintenance, taxes, and insurance included</li>
+                    <li>Side-by-side chart for 2–3 scenarios</li>
                 </ul>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-    with col2:
+    with right:
         st.markdown(
             """
             <div class="hp-card">
-                <span class="hp-tag">Moving helper</span>
-                <h3>From lease end to settled in</h3>
+                <div class="hp-tag">Move planning</div>
+                <h4>Stress-less move checklist</h4>
                 <ul>
-                    <li>Timeline for notice, packing, movers, and utilities.</li>
-                    <li>Compare buying vs renting timeline side by side.</li>
-                    <li>Estimated total move cost with deposits and fees.</li>
+                    <li>Timeline for utilities, mail, and address changes</li>
+                    <li>Budget planner for movers, trucks, and supplies</li>
+                    <li>“First night box” suggestions so you are not hunting for basics</li>
+                    <li>Export checklist to your phone as simple tasks</li>
                 </ul>
             </div>
             """,
             unsafe_allow_html=True,
         )
-
 
 # -----------------------------------------------------------
 # ROUTER
 # -----------------------------------------------------------
-render_nav()
-current = st.session_state["active"]
+page = st.session_state["page"]
 
-if current == "Home dashboard":
-    page_home()
-elif current == "First-time buyer friendly":
-    page_first_time()
-elif current == "Investor deal analysis":
-    page_investor()
-elif current == "Neighbor insights":
-    page_neighbor()
-elif current == "Repair estimator":
-    page_repair()
-elif current == "Rent & moving tools":
-    page_rent()
+if page == "Home dashboard":
+    page_home_dashboard()
+elif page == "First-time buyer friendly":
+    page_first_time_buyer()
+elif page == "Investor deal analysis":
+    page_investor_analysis()
+elif page == "Neighbor insights":
+    page_neighbor_insights()
+elif page == "Repair estimator":
+    page_repair_estimator()
+elif page == "Rent & moving tools":
+    page_rent_and_moving()
 
 
 

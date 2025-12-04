@@ -12,225 +12,230 @@ st.set_page_config(
 )
 
 # -------------------------------------------------------------
-# GLOBAL STYLES (MATCH SCREENSHOT)
+# GLOBAL STYLES (match your screenshot)
 # -------------------------------------------------------------
 st.markdown(
     """
     <style>
-        /* PAGE BACKGROUND */
         body {
-            background-color: #F4F7FB;
-        }
-        .main {
-            background-color: #F4F7FB;
+            background-color: #f3f7fb;
         }
 
-        /* REMOVE DEFAULT PADDING TOP */
-        .block-container {
-            padding-top: 1.5rem;
+        .main > div {
+            padding-top: 0rem;
         }
 
-        /* HEADER */
-        .hp-header {
+        /* App background */
+        .stApp {
+            background-color: #f3f7fb;
+            font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+        }
+
+        /* Header row */
+        .hp-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .hp-logo-wrap {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 8px;
         }
-        .hp-logo-circle {
-            width: 42px;
-            height: 42px;
+
+        .hp-logo-icon {
+            width: 40px;
+            height: 40px;
             border-radius: 12px;
-            background: #0A7C8B;
+            background: #007c91;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: 700;
-            font-size: 18px;
-        }
-        .hp-title-text {
-            font-size: 24px;
-            font-weight: 700;
-            color: #004F6E;
-        }
-        .hp-subtitle {
-            font-size: 12px;
-            color: #5F6B7A;
-            margin-top: -4px;
+            font-size: 20px;
         }
 
-        /* TOP NAV BAR */
+        .hp-logo-text-main {
+            font-size: 24px;
+            font-weight: 700;
+            color: #024047;
+        }
+
+        .hp-logo-text-sub {
+            font-size: 12px;
+            color: #5f7b84;
+        }
+
+        /* Top nav pills */
         .hp-nav-row {
             display: flex;
             gap: 10px;
-            margin-top: 18px;
-            margin-bottom: 24px;
         }
 
-        /* STYLE ALL STREAMLIT BUTTONS AS NAV PILLS */
-        .stButton > button {
-            background: #0A7C8B;
-            color: #FFFFFF;
-            padding: 12px 26px;
+        .hp-pill {
+            background: #0a95a5;
+            color: #ffffff;
+            padding: 10px 20px;
             border-radius: 10px;
             border: none;
             font-size: 13px;
             font-weight: 600;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.18);
             cursor: pointer;
-        }
-        .stButton > button:hover {
-            background: #086874;
-        }
-
-        /* ACTIVE NAV PILL (we'll target via custom data attribute) */
-        .hp-active-nav {
-            background: #005E6D !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.16);
+            white-space: nowrap;
         }
 
-        /* HERO SEARCH CARD */
-        .hp-hero-card {
-            background: linear-gradient(135deg, #0086B3, #00AECB, #0A9A5A);
-            border-radius: 10px;
-            padding: 24px 28px;
+        .hp-pill-active {
+            background: #046879;
+        }
+
+        /* Hero banner */
+        .hp-hero {
+            margin-top: 12px;
+            background: #0086b3;
             color: white;
-            margin-bottom: 26px;
+            border-radius: 16px;
+            padding: 22px 26px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
         }
+
         .hp-hero-title {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 700;
             margin: 0 0 4px 0;
         }
-        .hp-hero-subtitle {
-            font-size: 13px;
+
+        .hp-hero-sub {
+            font-size: 14px;
             opacity: 0.95;
+            margin: 0 0 18px 0;
         }
+
         .hp-hero-row {
-            margin-top: 14px;
             display: flex;
             gap: 10px;
+            margin-bottom: 10px;
         }
+
         .hp-hero-input {
             flex: 1;
-            padding: 12px 14px;
-            border-radius: 8px;
-            border: none;
-            font-size: 14px;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            font-size: 15px;
         }
+
         .hp-hero-btn {
-            padding: 12px 26px;
-            border-radius: 8px;
+            padding: 14px 26px;
+            border-radius: 10px;
             border: none;
-            background: #00837A;
+            background: #004f6e;
             color: white;
+            font-size: 15px;
             font-weight: 600;
-            font-size: 14px;
             cursor: pointer;
         }
+
         .hp-hero-helper {
-            margin-top: 10px;
             font-size: 12px;
-            opacity: 0.9;
+            opacity: 0.88;
         }
 
-        /* GENERIC CARD */
-        .hp-card {
-            background: white;
-            border-radius: 16px;
-            padding: 18px 18px 16px 18px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-        }
-
-        /* SECTION TITLE */
+        /* Section title */
         .hp-section-title {
             font-size: 18px;
             font-weight: 700;
-            color: #1F2D3D;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            margin-top: 22px;
             margin-bottom: 2px;
+            color: #12333c;
         }
+
         .hp-section-sub {
             font-size: 12px;
-            color: #67727E;
-            margin-bottom: 14px;
+            color: #8c8f97;
+            margin-bottom: 10px;
         }
 
-        /* NEIGHBORHOOD SNAPSHOT CARD */
-        .hp-metric-label {
-            font-size: 11px;
-            color: #6C7A89;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .hp-metric-value-main {
-            font-size: 26px;
-            font-weight: 700;
-            color: #004F6E;
-        }
-        .hp-metric-value-sub {
-            font-size: 14px;
-            color: #005E6D;
+        /* Listing card */
+        .hp-card {
+            background: white;
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.10);
         }
 
-        /* LISTING CARD */
-        .hp-listing-img {
+        .hp-listing-image {
             width: 100%;
             border-radius: 14px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
+
+        .hp-listing-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6px;
+        }
+
         .hp-price {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
-            color: #004F6E;
+            color: #002f3e;
         }
+
         .hp-line {
             font-size: 13px;
             color: #687280;
-            margin-top: 1px;
         }
+
         .hp-city {
             font-size: 13px;
-            color: #0A9A5A;
-            margin-top: 8px;
+            color: #0a95a5;
+            margin-top: 4px;
         }
+
         .hp-pill-btn {
-            padding: 8px 16px;
-            background: #0A7C8B;
+            background: #0a95a5;
             color: white;
-            border-radius: 999px;
-            font-size: 12px;
             border: none;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
         }
+
         .hp-listing-metrics-row {
             display: flex;
             justify-content: space-between;
             margin-top: 10px;
         }
+
         .hp-listing-metric-label {
             font-size: 11px;
             text-transform: uppercase;
-            color: #6C7A89;
+            color: #84919b;
         }
+
         .hp-listing-metric-value {
-            font-size: 15px;
-            font-weight: 600;
-            color: #004F6E;
+            font-size: 14px;
+            font-weight: 700;
+            color: #002f3e;
         }
+
         .hp-listing-metric-green {
-            color: #0A9A5A;
+            color: #0a9a6a;
         }
     </style>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
 # -------------------------------------------------------------
-# SESSION STATE NAV
+# NAV STATE
 # -------------------------------------------------------------
 if "active_page" not in st.session_state:
     st.session_state["active_page"] = "Home dashboard"
@@ -240,21 +245,21 @@ if "active_page" not in st.session_state:
 # HEADER + NAV
 # -------------------------------------------------------------
 def render_header_and_nav():
-    # header row
-    st.markdown(
-        """
-        <div class="hp-header">
-            <div class="hp-logo-circle">AI</div>
+    header_html = """
+    <div class="hp-header-row">
+        <div class="hp-logo-wrap">
+            <div class="hp-logo-icon">AI</div>
             <div>
-                <div class="hp-title-text">HomePathAI</div>
-                <div class="hp-subtitle">Neighborhood &amp; home insight assistant</div>
+                <div class="hp-logo-text-main">HomePathAI</div>
+                <div class="hp-logo-text-sub">
+                    Neighborhood &amp; home insight assistant
+                </div>
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    </div>
+    """
+    st.markdown(header_html, unsafe_allow_html=True)
 
-    # nav row
     pages = [
         "Home dashboard",
         "First-time buyer friendly",
@@ -264,30 +269,34 @@ def render_header_and_nav():
         "Rent & moving tools",
     ]
 
-    st.markdown('<div class="hp-nav-row">', unsafe_allow_html=True)
-    cols = st.columns(len(pages))
+    nav_cols = st.columns(len(pages))
+    for i, label in enumerate(pages):
+        is_active = (st.session_state["active_page"] == label)
+        btn_class = "hp-pill hp-pill-active" if is_active else "hp-pill"
 
-    for i, p in enumerate(pages):
-        is_active = (st.session_state["active_page"] == p)
-        # we still use Streamlit buttons for routing
-        with cols[i]:
-            if st.button(p):
-                st.session_state["active_page"] = p
+        html = f'<button class="{btn_class}">{label}</button>'
 
-    st.markdown("</div>", unsafe_allow_html=True)
+        # Transparent Streamlit button that we ignore visually
+        if nav_cols[i].button(" ", key=f"nav_{label}"):
+            st.session_state["active_page"] = label
+
+        # Draw our styled pill under the invisible button
+        nav_cols[i].markdown(html, unsafe_allow_html=True)
 
 
 # -------------------------------------------------------------
-# HOME DASHBOARD - FULL SCREENSHOT STYLE
+# HOME DASHBOARD – MATCHES YOUR SCREENSHOT LAYOUT
 # -------------------------------------------------------------
 def render_home_dashboard():
-    # HERO BAR (search card)
+    # HERO
     hero_html = """
-    <div class="hp-hero-card">
-        <div class="hp-hero-title">Smart search for your next home — powered by AI.</div>
-        <div class="hp-hero-subtitle">
-            Neighborhood insights, investor-grade numbers, repair tools, moving resources, and first-time buyer help —
-            all in one experience built for real people.
+    <div class="hp-hero">
+        <div class="hp-hero-title">
+            Smart search for your next home — powered by AI.
+        </div>
+        <div class="hp-hero-sub">
+            Neighborhood insights, investor-grade numbers, repair tools, moving resources,
+            and first-time buyer help — all in one experience built for real people.
         </div>
 
         <div class="hp-hero-row">
@@ -302,47 +311,33 @@ def render_home_dashboard():
     """
     st.markdown(hero_html, unsafe_allow_html=True)
 
-    # SECTION TITLE (Trending homes)
+    # SECTION TITLE
+    st.markdown('<div class="hp-section-title">🔥 Trending homes near you</div>',
+                unsafe_allow_html=True)
     st.markdown(
-        """
-        <div class="hp-section-title">
-            <span>🔥</span>
-            <span>Trending homes near you</span>
-        </div>
-        <div class="hp-section-sub">
-            Sample homes across Detroit and nearby areas — demo data only.
-        </div>
-        """,
+        '<div class="hp-section-sub">Sample homes across Detroit and nearby areas — demo data only.</div>',
         unsafe_allow_html=True,
     )
 
-    # HEATMAP + LISTING CARD LAYOUT
-    left, right = st.columns([1.15, 1])
+    # HEATMAP + LISTING CARD
+    left, right = st.columns([1.2, 1])
 
-    # LEFT: Neighborhood snapshot card with heatmap
+    # --- LEFT: map ---
     with left:
         st.markdown(
-            """
-            <div class="hp-card">
-                <div class="hp-section-title" style="margin-bottom:4px;">
-                    <span>📍</span>
-                    <span>Neighborhood snapshot</span>
-                </div>
-                <div class="hp-section-sub" style="margin-bottom:10px;">
-                    Safety, price, and walkability at a glance — demo map.
-                </div>
-            """,
+            '<div class="hp-section-title" style="font-size:16px;">Neighborhood snapshot</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            '<div class="hp-section-sub" style="margin-bottom:8px;">Safety, price, and walkability at a glance — demo map.</div>',
             unsafe_allow_html=True,
         )
 
-        # build DataFrame for heatmap
-        df = pd.DataFrame(
-            {
-                "lat": np.random.uniform(42.28, 42.42, 250),
-                "lon": np.random.uniform(-83.5, -83.0, 250),
-                "value": np.random.uniform(0, 1, 250),
-            }
-        )
+        df = pd.DataFrame({
+            "lat": np.random.uniform(42.28, 42.42, 250),
+            "lon": np.random.uniform(-83.5, -83.0, 250),
+            "value": np.random.uniform(0, 1, 250),
+        })
 
         layer = pdk.Layer(
             "HeatmapLayer",
@@ -364,25 +359,30 @@ def render_home_dashboard():
 
         st.pydeck_chart(deck)
 
-        # close card div
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    # RIGHT: Listing card
+    # --- RIGHT: listing card ---
     with right:
+        st.markdown(
+            '<div class="hp-section-title" style="font-size:16px;">Phase 1 - Listing Card (Placeholder)</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            '<div class="hp-section-sub" style="margin-bottom:8px;">This area shows the AI-scored property card (demo values).</div>',
+            unsafe_allow_html=True,
+        )
+
         listing_html = """
         <div class="hp-card">
-            <img class="hp-listing-img" src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"
-                 alt="Home photo" />
+            <img class="hp-listing-image"
+                 src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"
+                 alt="House" />
 
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+            <div class="hp-listing-top-row">
                 <div>
                     <div class="hp-price">$579,900</div>
                     <div class="hp-line">4 bd | 3 ba | 2,580 sq ft</div>
                     <div class="hp-city">Downtown, Detroit, MI</div>
                 </div>
-                <div>
-                    <button class="hp-pill-btn">Constrain</button>
-                </div>
+                <button class="hp-pill-btn">Constrain</button>
             </div>
 
             <div class="hp-listing-metrics-row">
@@ -405,31 +405,27 @@ def render_home_dashboard():
 
 
 # -------------------------------------------------------------
-# OTHER PAGES - SIMPLE PLACEHOLDERS
+# OTHER PAGES – SIMPLE PLACEHOLDERS FOR NOW
 # -------------------------------------------------------------
 def render_first_time_buyer():
     st.subheader("First-time buyer friendly 🧭")
-    st.write("This page will show AI resources, beginner tips, and affordability tools.")
-
+    st.write("AI resources & beginner-friendly tips will live here.")
 
 def render_investor_analysis():
     st.subheader("Investor deal analysis 💼")
     st.write("This page will show cap rates, cash-on-cash, and flip / BRRRR style analysis.")
 
-
 def render_neighbor_insights():
     st.subheader("Neighbor insights 🏘️")
-    st.write("This page will show crime, schools, walkability, and lifestyle scores.")
-
+    st.write("Local area crime, schools, walkability, and lifestyle fit scoring coming soon.")
 
 def render_repair_estimator():
     st.subheader("Repair estimator 🔧")
-    st.write("Upload photos or enter repair items for AI-powered cost estimates.")
-
+    st.write("Upload photos + AI-estimated repair costs will be here.")
 
 def render_rent_and_moving():
     st.subheader("Rent & moving tools 🚚")
-    st.write("Compare rents vs buying, moving timelines, and relocation helpers.")
+    st.write("Rent vs buy, moving calculators, and relocation helpers will be here.")
 
 
 # -------------------------------------------------------------
@@ -450,7 +446,6 @@ elif page == "Repair estimator":
     render_repair_estimator()
 elif page == "Rent & moving tools":
     render_rent_and_moving()
-
 
 
 

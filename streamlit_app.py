@@ -13,6 +13,7 @@ st.markdown("""
 
 body {
     background-color: #F5F8FA;
+    font-family: 'Segoe UI', sans-serif;
 }
 
 /* NAV BUTTONS */
@@ -24,15 +25,16 @@ body {
     font-weight: 600;
     border: none;
     cursor: pointer;
-    margin-right: 10px;
+    margin-right: 12px;
 }
 
-/* HERO CARD */
+/* HERO */
 .hp-hero {
     background: #0D7680;
     color: white;
-    padding: 32px;
+    padding: 34px;
     border-radius: 14px;
+    margin-top: 10px;
 }
 
 /* HERO INPUT */
@@ -46,7 +48,7 @@ body {
 
 /* HERO BUTTON */
 .hp-hero-btn {
-    padding: 14px 26px;
+    padding: 14px 28px;
     background:#07525A;
     border-radius: 10px;
     border: none;
@@ -55,13 +57,38 @@ body {
     cursor:pointer;
 }
 
-/* LISTING CARD */
+/* PROPERTY CARD */
 .hp-card {
     background: white;
     border-radius: 16px;
     padding: 20px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    margin-top: 20px;
+    margin-top: 18px;
+}
+
+/* SMALL METRIC LABELS */
+.hp-label {
+    color:#8890A0; 
+    font-size:13px;
+}
+
+.hp-value {
+    font-weight:700; 
+    font-size:15px;
+}
+
+.hp-green {
+    color:#0B9D4A;
+}
+
+.hp-pill-btn {
+    background:#0A6C75;
+    color:white;
+    font-weight:600;
+    padding:10px 18px;
+    border-radius:8px;
+    border:none;
+    cursor:pointer;
 }
 
 </style>
@@ -84,39 +111,38 @@ if "active" not in st.session_state:
 
 cols = st.columns(len(pages))
 for i, p in enumerate(pages):
-    if cols[i].button(p, key=p, help="", use_container_width=True):
+    if cols[i].button(p, key=p):
         st.session_state.active = p
 
 # -----------------------------------------------------------
-# HOME DASHBOARD
+# HOME PAGE
 # -----------------------------------------------------------
 def page_home():
 
     # HERO SECTION
     st.markdown("""
-    <div class="hp-hero">
+<div class="hp-hero">
 
-        <h2>Smart search for your next home — powered by AI.</h2>
-        <p>Neighborhood insights, investor-grade numbers, repair tools,
-           and first-time buyer help — all in one place.</p>
+    <h2>Smart search for your next home — powered by AI.</h2>
+    <p>Neighborhood insights, investor-grade numbers, repair tools,
+       and first-time buyer help — all in one place.</p>
 
-        <div style="display:flex; gap:12px; margin-top:16px;">
-            <input class="hp-hero-input" placeholder="Search city, neighborhood, or ZIP" />
-            <button class="hp-hero-btn">Search</button>
-        </div>
-
+    <div style="display:flex; gap:12px; margin-top:20px;">
+        <input class="hp-hero-input" placeholder="Search city, neighborhood, or ZIP" />
+        <button class="hp-hero-btn">Search</button>
     </div>
+
+</div>
     """, unsafe_allow_html=True)
 
-    # SECTION TITLE
     st.markdown("### 🔥 Trending homes near you")
 
-    # MAP + LISTING
     left, right = st.columns([1.3, 1])
 
+    # MAP
     with left:
-
         st.markdown("#### Neighborhood snapshot")
+
         df = pd.DataFrame({
             "lat": np.random.uniform(42.28, 42.42, 200),
             "lon": np.random.uniform(-83.5, -83.0, 200),
@@ -128,7 +154,7 @@ def page_home():
             df,
             get_position='[lon, lat]',
             threshold=0.2,
-            opacity=0.8
+            opacity=0.85
         )
 
         deck = pdk.Deck(
@@ -143,48 +169,55 @@ def page_home():
 
         st.pydeck_chart(deck)
 
+    # LISTING CARD
     with right:
 
         st.markdown("""
-        <div class="hp-card">
-            <img src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"
-                 width="100%" style="border-radius:12px; margin-bottom:12px;" />
+<div class="hp-card">
 
-            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                <div>
-                    <div style="font-size:22px; font-weight:700;">$579,900</div>
-                    <div>4 bd | 3 ba | 2,580 sq ft</div>
-                    <div>Downtown, Detroit, MI</div>
-                </div>
-                <button class="hp-pill-btn">Constrain</button>
-            </div>
+    <img src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"
+         width="100%" style="border-radius:12px; margin-bottom:12px;" />
 
-            <div style="display:flex; justify-content:space-between; margin-top:14px;">
-                <div>
-                    <div style="color:#8890A0;">HomePath score</div>
-                    <div style="font-weight:700;">88</div>
-                </div>
-                <div>
-                    <div style="color:#8890A0;">Est. value</div>
-                    <div style="font-weight:700;">$340,000</div>
-                </div>
-                <div>
-                    <div style="color:#8890A0;">5-yr growth</div>
-                    <div style="font-weight:700; color:#0B9D4A;">+5.2%</div>
-                </div>
-            </div>
-
+    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+        <div>
+            <div style="font-size:22px; font-weight:700;">$579,900</div>
+            <div>4 bd | 3 ba | 2,580 sq ft</div>
+            <div>Downtown, Detroit, MI</div>
         </div>
+        <button class="hp-pill-btn">Constrain</button>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; margin-top:12px;">
+
+        <div>
+            <div class="hp-label">HomePath score</div>
+            <div class="hp-value">88</div>
+        </div>
+
+        <div>
+            <div class="hp-label">Est. value</div>
+            <div class="hp-value">$340,000</div>
+        </div>
+
+        <div>
+            <div class="hp-label">5-yr growth</div>
+            <div class="hp-value hp-green">+5.2%</div>
+        </div>
+
+    </div>
+
+</div>
         """, unsafe_allow_html=True)
 
 # -----------------------------------------------------------
-# PAGE ROUTING
+# ROUTER
 # -----------------------------------------------------------
 if st.session_state.active == "Home dashboard":
     page_home()
 else:
     st.title(st.session_state.active)
     st.write("Page coming soon.")
+
 
 
 
